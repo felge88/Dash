@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 40% 2%;
+    --foreground: 210 40% 98%;
+    --card: 210 40% 4%;
+    --card-foreground: 210 40% 98%;
+    --popover: 210 40% 4%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 142 76% 36%;
+    --primary-foreground: 210 40% 2%;
+    --secondary: 210 40% 10%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 210 40% 10%;
+    --muted-foreground: 210 40% 65%;
+    --accent: 210 40% 15%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 210 40% 18%;
+    --input: 210 40% 18%;
+    --ring: 142 76% 36%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-mono;
+    background: radial-gradient(ellipse at center, #0a0a0a 0%, #000000 100%);
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  .horror-glow {
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+  }
+
+  .horror-border {
+    border: 1px solid rgba(0, 255, 65, 0.5);
+  }
+
+  .glitch-text {
+    position: relative;
+  }
+
+  .glitch-text::before,
+  .glitch-text::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .glitch-text::before {
+    animation: glitch 0.3s ease-in-out infinite alternate-reverse;
+    color: #ff0040;
+    z-index: -1;
+  }
+
+  .glitch-text::after {
+    animation: glitch 0.3s ease-in-out infinite alternate-reverse;
+    color: #00ff41;
+    z-index: -2;
+  }
+
+  .module-card {
+    @apply bg-horror-surface border border-horror-border rounded-lg p-6 transition-all duration-300;
+    background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+  }
+
+  .module-card:hover {
+    @apply horror-glow transform scale-105;
+    animation: glitch 0.3s ease-in-out;
+  }
+
+  .status-active {
+    @apply text-horror-accent;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.8);
+  }
+
+  .status-inactive {
+    @apply text-gray-500;
+  }
+
+  .status-error {
+    @apply text-horror-danger;
+    text-shadow: 0 0 10px rgba(255, 0, 64, 0.8);
+  }
+}
+
+.preloader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.preloader-content {
+  text-align: center;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 3px solid rgba(0, 255, 65, 0.3);
+  border-top: 3px solid #00ff41;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+.loading-text {
+  color: #00ff41;
+  font-size: 18px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
