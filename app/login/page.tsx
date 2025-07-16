@@ -45,20 +45,37 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-horror-bg">
+    <div className="min-h-screen flex items-center justify-center bg-horror-bg relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-horror-bg via-horror-surface to-horror-bg" />
+        <motion.div
+          animate={{
+            background: [
+              "radial-gradient(circle at 20% 50%, rgba(0,255,65,0.1) 0%, transparent 50%)",
+              "radial-gradient(circle at 80% 50%, rgba(0,255,65,0.1) 0%, transparent 50%)",
+              "radial-gradient(circle at 50% 20%, rgba(0,255,65,0.1) 0%, transparent 50%)",
+              "radial-gradient(circle at 50% 80%, rgba(0,255,65,0.1) 0%, transparent 50%)",
+            ],
+          }}
+          transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+          className="absolute inset-0"
+        />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
+        className="w-full max-w-md relative z-10"
       >
-        <Card className="bg-horror-surface border-horror-border horror-glow">
+        <Card className="bg-horror-surface/90 border-horror-border horror-glow backdrop-blur-sm">
           <CardHeader className="text-center">
             <motion.div
               animate={{ opacity: [0.7, 1, 0.7] }}
               transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
             >
-              <CardTitle className="text-2xl font-bold text-horror-accent glitch-text" data-text="SYSTEM ACCESS">
+              <CardTitle className="text-3xl font-bold text-horror-accent glitch-text" data-text="SYSTEM ACCESS">
                 SYSTEM ACCESS
               </CardTitle>
             </motion.div>
@@ -79,7 +96,7 @@ export default function LoginPage() {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     className="pl-10 bg-horror-bg border-horror-border text-white focus:border-horror-accent"
-                    placeholder="admin"
+                    placeholder="Benutzername eingeben"
                     required
                   />
                 </div>
@@ -131,10 +148,6 @@ export default function LoginPage() {
                 )}
               </Button>
             </form>
-
-            <div className="mt-6 text-center text-xs text-gray-500">
-              <p>Standard-Login: admin / admin123</p>
-            </div>
           </CardContent>
         </Card>
       </motion.div>

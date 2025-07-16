@@ -7,12 +7,14 @@ export async function POST(request: NextRequest) {
     const { username, password } = await request.json()
 
     if (!username || !password) {
+      console.error("Login-Fehler: Benutzername oder Passwort fehlen")
       return NextResponse.json({ error: "Username und Passwort erforderlich" }, { status: 400 })
     }
 
     const user = await authenticateUser(username, password)
 
     if (!user) {
+      console.error(`Login-Fehler für Benutzer '${username}': Ungültige Anmeldedaten`)
       return NextResponse.json({ error: "Ungültige Anmeldedaten" }, { status: 401 })
     }
 
@@ -26,9 +28,10 @@ export async function POST(request: NextRequest) {
       maxAge: 60 * 60 * 24 * 7, // 7 days
     })
 
+    console.log(`Benutzer '${username}' erfolgreich angemeldet.`)
     return NextResponse.json({ success: true, user: { username: user.username, is_admin: user.is_admin } })
   } catch (error) {
-    console.error("Login error:", error)
+    console.error("Interner Serverfehler beim Login:", error)
     return NextResponse.json({ error: "Interner Serverfehler" }, { status: 500 })
   }
 }

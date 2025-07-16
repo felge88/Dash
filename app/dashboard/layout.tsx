@@ -17,7 +17,6 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-horror-bg">
-      <Suspense fallback={<div className="w-64 bg-horror-surface border-r border-horror-border" />}>
         <Sidebar user={user} />
       </Suspense>
       <main className="flex-1 ml-64 p-8">
