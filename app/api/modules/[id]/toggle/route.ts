@@ -1,28 +1,66 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { getCurrentUser } from "@/lib/auth"
-import { db } from "@/lib/database"
+import { type NextRequest, NextResponse } from "next/server";
+import { authenticateRequest, requireAuth } from "@/lib/auth-new";
+import database from "@/lib/database";
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+interface ModuleToggleRequest {
+  is_active: boolean;
+}
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const user = await getCurrentUser()
-    if (!user) {
-      return NextResponse.json({ error: "Nicht authentifiziert" }, { status: 401 })
+    const user = await authenticateRequest(request);
+    requireAuth(user);
+
+    const moduleId = parseInt(params.id);
+    if (isNaN(moduleId)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid module ID" },
+        { status: 400 }
+      );
     }
 
-    const { is_active } = await request.json()
-    const moduleId = Number.parseInt(params.id)
+    const body: ModuleToggleRequest = await request.json();
+    const { is_active } = body;
 
-    // Log the activity
-    await db.logModuleActivity(
-      moduleId,
-      user.id,
-      is_active ? "activated" : "deactivated",
-      `Modul ${is_active ? "aktiviert" : "deaktiviert"} von ${user.username}`,
-    )
+    if (typeof is_active !== "boolean") {
+      return NextResponse.json(
+        { success: false, error: "is_active must be a boolean" },
+        { status: 400 }
+      );
+    }
 
-    return NextResponse.json({ success: true })
+    // Toggle module for user
+    await database.toggleUserModule(user!.id, moduleId, is_active);
+
+    // Log activity
+    await database.logActivity(
+      user!.id,
+      "module",
+      is_active ? "module_enabled" : "module_disabled",
+      "success",
+      `Module ${moduleId} ${is_active ? "enabled" : "disabled"}`,
+      { module_id: moduleId }
+    );
+
+    return NextResponse.json({
+      success: true,
+      message: `Module ${is_active ? "enabled" : "disabled"} successfully`,
+    });
   } catch (error) {
-    console.error("Error toggling module:", error)
-    return NextResponse.json({ error: "Interner Serverfehler" }, { status: 500 })
+    if (error instanceof Error && error.message === "Authentication required") {
+      return NextResponse.json(
+        { success: false, error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    console.error("Module toggle API error:", error);
+    return NextResponse.json(
+      { success: false, error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

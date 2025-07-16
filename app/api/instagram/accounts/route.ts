@@ -1,26 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authenticateRequest, requireAuth } from "@/lib/auth-new";
-import database from "@/lib/database";
+import instagramService from "@/lib/services/instagram";
 
 export async function GET(request: NextRequest) {
   try {
     const user = await authenticateRequest(request);
     requireAuth(user);
 
-    const modules = await database.getModulesForUser(user!.id);
+    const accounts = await instagramService.getAccountsByUserId(user!.id);
 
     return NextResponse.json({
       success: true,
-      modules: modules.map((module) => ({
-        id: module.id,
-        name: module.name,
-        description: module.description,
-        type: module.type,
-        is_active: module.is_active,
-        user_active: module.user_active || false,
-        config: module.config ? JSON.parse(module.config) : {},
-        user_config: module.user_config ? JSON.parse(module.user_config) : {},
-        created_at: module.created_at,
+      accounts: accounts.map((account) => ({
+        id: account.id,
+        username: account.username,
+        is_connected: account.is_connected,
+        followers_count: account.followers_count,
+        following_count: account.following_count,
+        posts_count: account.posts_count,
+        last_sync: account.last_sync,
+        created_at: account.created_at,
       })),
     });
   } catch (error) {
@@ -31,7 +30,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.error("Modules API error:", error);
+    console.error("Instagram accounts API error:", error);
     return NextResponse.json(
       { success: false, error: "Internal server error" },
       { status: 500 }

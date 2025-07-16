@@ -1,227 +1,232 @@
 import sqlite3 from "sqlite3"
 import { promisify } from "util"
 import path from "path"
+import fs from "fs"
 
-const dbPath = path.join(process.cwd(), "data", "database.sqlite")
+const dataDir = path.join(process.cwd(), "data")
+const dbPath = path.join(dataDir, "database.sqlite")
 
 class Database {
   private db: sqlite3.Database
+  private initialized = false
 
   constructor() {
+    // Ensure data directory exists
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true })
+    }
+
     this.db = new sqlite3.Database(dbPath)
     this.init()
   }
 
   private async init() {
+    if (this.initialized) return
+
     const run = promisify(this.db.run.bind(this.db))
 
     try {
-      // Users table
-      await run(`
-        CREATE TABLE IF NOT EXISTS users (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          username TEXT UNIQUE NOT NULL,
-          password_hash TEXT NOT NULL,
-          is_admin BOOLEAN DEFAULT FALSE,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          last_login DATETIME
-        )
-      `)
-      console.log("Tabelle 'users' erstellt/verifiziert.")
-
-      // Modules table
-      await run(`
-        CREATE TABLE IF NOT EXISTS modules (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT UNIQUE NOT NULL,
-          description TEXT,
-          script_path TEXT,
-          is_active BOOLEAN DEFAULT FALSE,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-      `)
-      console.log("Tabelle 'modules' erstellt/verifiziert.")
-
-      // User modules permissions
-      await run(`
-        CREATE TABLE IF NOT EXISTS user_modules (
-          user_id INTEGER,
-          module_id INTEGER,
-          granted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (user_id) REFERENCES users (id),
-          FOREIGN KEY (module_id) REFERENCES modules (id),
-          PRIMARY KEY (user_id, module_id)
-        )
-      `)
-      console.log("Tabelle 'user_modules' erstellt/verifiziert.")
-
-      // Module logs
-      await run(`
-        CREATE TABLE IF NOT EXISTS module_logs (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          module_id INTEGER,
-          user_id INTEGER,
-          status TEXT NOT NULL,
-          message TEXT,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-          FOREIGN KEY (module_id) REFERENCES modules (id),
-          FOREIGN KEY (user_id) REFERENCES users (id)
-        )
-      `)
-      console.log("Tabelle 'module_logs' erstellt/verifiziert.")
-
-      // Insert default admin user if not exists
-      const bcrypt = require("bcryptjs")
-      const adminPassword = await bcrypt.hash("admin123", 10)
-
-      await run(
-        `
-        INSERT OR IGNORE INTO users (username, password_hash, is_admin)
-        VALUES ('admin', ?, TRUE)
-      `,
-        [adminPassword],
-      )
-      console.log("Admin-Benutzer 'admin' erstellt/verifiziert.")
-
-      // Insert default modules
-      const defaultModules = [
-        {
-          name: "Instagram Automation",
-          description: "Automatisierte Instagram-Aktionen wie Follow, Like und Comment",
-          script_path: "instagram-bot.py",
-        },
-        {
-          name: "YouTube Downloader",
-          description: "YouTube Videos und Playlists herunterladen",
-          script_path: "youtube-downloader.py",
-        },
-        {
-          name: "Web Scraper",
-          description: "Automatisiertes Sammeln von Daten aus Websites",
-          script_path: "web-scraper.py",
-        },
-        {
-          name: "Email Automation",
-          description: "Automatisierte E-Mail-Verarbeitung und -Versendung",
-          script_path: "email-bot.py",
-        },
-        {
-          name: "Social Media Monitor",
-          description: "Überwachung von Social Media Aktivitäten",
-          script_path: "social-monitor.py",
-        },
-        {
-          name: "Content Generator",
-          description: "Automatische Generierung von Social Media Content",
-          script_path: "content-generator.py",
-        },
-      ]
-
-      for (const module of defaultModules) {
-        await run(
-          `
-          INSERT OR IGNORE INTO modules (name, description, script_path)
-          VALUES (?, ?, ?)
-        `,
-          [module.name, module.description, module.script_path],
-        )
-        console.log(`Modul '${module.name}' erstellt/verifiziert.`)
+      // Load and execute schema
+      const schemaPath = path.join(process.cwd(), 'lib', 'db-schema.sql')
+      
+      if (fs.existsSync(schemaPath)) {
+        const schema = fs.readFileSync(schemaPath, 'utf8')
+        
+        // Split schema into individual statements and execute
+        const statements = schema.split(';').filter(stmt => stmt.trim())
+        
+        for (const statement of statements) {
+          if (statement.trim()) {
+            try {
+              await run(statement.trim())
+            } catch (error) {
+              console.warn('Schema statement warning:', error)
+            }
+          }
+        }
+        
+        console.log("Database schema initialized successfully")
+      } else {
+        console.warn('Schema file not found, using fallback tables')
+        // Fallback minimal tables
+        await this.createFallbackTables(run)
       }
-    } catch (error) {
-      console.error("Fehler bei der Datenbankinitialisierung:", error)
-    }
-  }
 
-  async getUser(username: string) {
-    const get = promisify(this.db.get.bind(this.db))
-    try {
-      const user = await get("SELECT * FROM users WHERE username = ?", [username])
-      if (!user) {
-        console.warn(`Benutzer '${username}' nicht in der Datenbank gefunden.`)
-      }
-      return user
+      this.initialized = true
     } catch (error) {
-      console.error(`Fehler beim Abrufen des Benutzers '${username}':`, error)
+      console.error("Database initialization error:", error)
       throw error
     }
   }
 
-  async getAllUsers() {
+  private async createFallbackTables(run: any) {
+    // Minimal fallback tables
+    await run(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        email TEXT,
+        name TEXT,
+        profile_image TEXT,
+        is_admin BOOLEAN DEFAULT FALSE,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        last_login DATETIME,
+        settings JSON DEFAULT '{}'
+      )
+    `)
+
+    await run(`
+      CREATE TABLE IF NOT EXISTS modules (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL,
+        description TEXT,
+        type TEXT NOT NULL,
+        is_active BOOLEAN DEFAULT FALSE,
+        config JSON DEFAULT '{}',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `)
+  }
+
+  async get(query: string, params: any[] = []): Promise<any> {
+    await this.ensureInitialized()
+    const get = promisify(this.db.get.bind(this.db))
+    return await get(query, params)
+  }
+
+  async all(query: string, params: any[] = []): Promise<any[]> {
+    await this.ensureInitialized()
     const all = promisify(this.db.all.bind(this.db))
-    return await all("SELECT id, username, is_admin, created_at, last_login FROM users")
+    return await all(query, params)
   }
 
-  async createUser(username: string, passwordHash: string, isAdmin = false) {
+  async run(query: string, params: any[] = []): Promise<{ lastID: number; changes: number }> {
+    await this.ensureInitialized()
     const run = promisify(this.db.run.bind(this.db))
-    return await run("INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, ?)", [
-      username,
-      passwordHash,
-      isAdmin,
-    ])
+    const result = await run(query, params)
+    return { 
+      lastID: (result as any).lastID || 0, 
+      changes: (result as any).changes || 0 
+    }
   }
 
-  async deleteUser(userId: number) {
+  async transaction(callback: () => Promise<void>): Promise<void> {
+    await this.ensureInitialized()
     const run = promisify(this.db.run.bind(this.db))
-    await run("DELETE FROM user_modules WHERE user_id = ?", [userId])
-    return await run("DELETE FROM users WHERE id = ?", [userId])
+    
+    try {
+      await run('BEGIN TRANSACTION')
+      await callback()
+      await run('COMMIT')
+    } catch (error) {
+      await run('ROLLBACK')
+      throw error
+    }
   }
 
-  async updateUserPassword(userId: number, passwordHash: string) {
-    const run = promisify(this.db.run.bind(this.db))
-    return await run("UPDATE users SET password_hash = ? WHERE id = ?", [passwordHash, userId])
+  private async ensureInitialized(): Promise<void> {
+    if (!this.initialized) {
+      await this.init()
+    }
   }
 
-  async getAllModules() {
-    const all = promisify(this.db.all.bind(this.db))
-    return await all("SELECT * FROM modules ORDER BY name")
+  close(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.db.close((err) => {
+        if (err) reject(err)
+        else resolve()
+      })
+    })
   }
 
-  async getUserModules(userId: number) {
-    const all = promisify(this.db.all.bind(this.db))
-    return await all(
-      `
-      SELECT m.* FROM modules m
-      JOIN user_modules um ON m.id = um.module_id
-      WHERE um.user_id = ?
-      ORDER BY m.name
-    `,
-      [userId],
+  // Utility methods for common operations
+  async getUserById(id: number): Promise<any> {
+    return await this.get('SELECT * FROM users WHERE id = ?', [id])
+  }
+
+  async getUserByUsername(username: string): Promise<any> {
+    return await this.get('SELECT * FROM users WHERE username = ?', [username])
+  }
+
+  async createUser(userData: {
+    username: string
+    password_hash: string
+    email?: string
+    name?: string
+    is_admin?: boolean
+  }): Promise<number> {
+    const result = await this.run(
+      `INSERT INTO users (username, password_hash, email, name, is_admin) 
+       VALUES (?, ?, ?, ?, ?)`,
+      [
+        userData.username,
+        userData.password_hash,
+        userData.email || null,
+        userData.name || null,
+        userData.is_admin || false
+      ]
+    )
+    return result.lastID
+  }
+
+  async updateUserLogin(userId: number): Promise<void> {
+    await this.run(
+      'UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?',
+      [userId]
     )
   }
 
-  async grantModuleAccess(userId: number, moduleId: number) {
-    const run = promisify(this.db.run.bind(this.db))
-    return await run("INSERT OR IGNORE INTO user_modules (user_id, module_id) VALUES (?, ?)", [userId, moduleId])
+  async getModulesForUser(userId: number): Promise<any[]> {
+    return await this.all(`
+      SELECT m.*, um.is_active as user_active, um.config as user_config
+      FROM modules m
+      LEFT JOIN user_modules um ON m.id = um.module_id AND um.user_id = ?
+      ORDER BY m.name
+    `, [userId])
   }
 
-  async revokeModuleAccess(userId: number, moduleId: number) {
-    const run = promisify(this.db.run.bind(this.db))
-    return await run("DELETE FROM user_modules WHERE user_id = ? AND module_id = ?", [userId, moduleId])
+  async toggleUserModule(userId: number, moduleId: number, isActive: boolean): Promise<void> {
+    await this.run(
+      `INSERT OR REPLACE INTO user_modules (user_id, module_id, is_active) 
+       VALUES (?, ?, ?)`,
+      [userId, moduleId, isActive]
+    )
   }
 
-  async logModuleActivity(moduleId: number, userId: number, status: string, message: string) {
-    const run = promisify(this.db.run.bind(this.db))
-    return await run("INSERT INTO module_logs (module_id, user_id, status, message) VALUES (?, ?, ?, ?)", [
-      moduleId,
-      userId,
-      status,
-      message,
-    ])
+  async logActivity(
+    userId: number, 
+    moduleType: string, 
+    action: string, 
+    status: 'success' | 'error' | 'info', 
+    message?: string, 
+    metadata?: any
+  ): Promise<void> {
+    await this.run(
+      `INSERT INTO activity_logs (user_id, module_type, action, status, message, metadata) 
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        userId,
+        moduleType,
+        action,
+        status,
+        message || null,
+        metadata ? JSON.stringify(metadata) : '{}'
+      ]
+    )
   }
 
-  async getModuleLogs(moduleId?: number, limit = 100) {
-    const all = promisify(this.db.all.bind(this.db))
-    const query = moduleId
-      ? "SELECT ml.*, m.name as module_name, u.username FROM module_logs ml JOIN modules m ON ml.module_id = m.id JOIN users u ON ml.user_id = u.id WHERE ml.module_id = ? ORDER BY ml.created_at DESC LIMIT ?"
-      : "SELECT ml.*, m.name as module_name, u.username FROM module_logs ml JOIN modules m ON ml.module_id = m.id JOIN users u ON ml.user_id = u.id ORDER BY ml.created_at DESC LIMIT ?"
-
-    return moduleId ? await all(query, [moduleId, limit]) : await all(query, [limit])
-  }
-
-  async updateLastLogin(userId: number) {
-    const run = promisify(this.db.run.bind(this.db))
-    return await run("UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?", [userId])
+  async getRecentActivities(userId: number, limit: number = 50): Promise<any[]> {
+    return await this.all(
+      `SELECT * FROM activity_logs 
+       WHERE user_id = ? 
+       ORDER BY created_at DESC 
+       LIMIT ?`,
+      [userId, limit]
+    )
   }
 }
 
-export const db = new Database()
+// Singleton instance
+const database = new Database()
+export default database
