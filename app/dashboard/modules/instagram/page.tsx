@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  Instagram, 
-  Plus, 
-  Settings, 
-  Play, 
-  Pause, 
-  Users, 
-  Heart, 
+import {
+  Instagram,
+  Plus,
+  Settings,
+  Play,
+  Pause,
+  Users,
+  Heart,
   MessageSquare,
   TrendingUp,
   Trash2,
@@ -17,7 +17,7 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  AlertCircle
+  AlertCircle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -57,7 +57,9 @@ export default function InstagramModule() {
   const [loading, setLoading] = useState(true);
   const [connectLoading, setConnectLoading] = useState(false);
   const [newUsername, setNewUsername] = useState("");
-  const [contentStatus, setContentStatus] = useState<ContentStatus>({ status: "inactive" });
+  const [contentStatus, setContentStatus] = useState<ContentStatus>({
+    status: "inactive",
+  });
   const [stats, setStats] = useState<any>({});
   const { toast } = useToast();
 
@@ -87,7 +89,7 @@ export default function InstagramModule() {
       if (response.ok) {
         const data = await response.json();
         setAccounts(data.accounts || []);
-        
+
         // Load stats for each account
         for (const account of data.accounts || []) {
           if (account.is_connected) {
@@ -112,7 +114,7 @@ export default function InstagramModule() {
       const response = await fetch(`/api/instagram/stats/${accountId}`);
       if (response.ok) {
         const data = await response.json();
-        setStats(prev => ({ ...prev, [accountId]: data }));
+        setStats((prev) => ({ ...prev, [accountId]: data }));
       }
     } catch (error) {
       console.error("Error loading stats:", error);
@@ -265,21 +267,21 @@ export default function InstagramModule() {
 
   const toggleAutomation = async () => {
     try {
-      const endpoint = automationConfig.auto_generate 
-        ? "/api/instagram/automation/stop" 
+      const endpoint = automationConfig.auto_generate
+        ? "/api/instagram/automation/stop"
         : "/api/instagram/automation/start";
-        
+
       const response = await fetch(endpoint, { method: "POST" });
-      
+
       if (response.ok) {
-        setAutomationConfig(prev => ({ 
-          ...prev, 
-          auto_generate: !prev.auto_generate 
+        setAutomationConfig((prev) => ({
+          ...prev,
+          auto_generate: !prev.auto_generate,
         }));
         toast({
           title: "Erfolg",
-          description: automationConfig.auto_generate 
-            ? "Automatisierung gestoppt" 
+          description: automationConfig.auto_generate
+            ? "Automatisierung gestoppt"
             : "Automatisierung gestartet",
         });
       }
@@ -290,7 +292,7 @@ export default function InstagramModule() {
 
   const addPostTime = () => {
     if (newPostTime && !automationConfig.post_times.includes(newPostTime)) {
-      setAutomationConfig(prev => ({
+      setAutomationConfig((prev) => ({
         ...prev,
         post_times: [...prev.post_times, newPostTime].sort(),
       }));
@@ -299,9 +301,9 @@ export default function InstagramModule() {
   };
 
   const removePostTime = (time: string) => {
-    setAutomationConfig(prev => ({
+    setAutomationConfig((prev) => ({
       ...prev,
-      post_times: prev.post_times.filter(t => t !== time),
+      post_times: prev.post_times.filter((t) => t !== time),
     }));
   };
 
@@ -320,13 +322,29 @@ export default function InstagramModule() {
   const getContentStatusDisplay = (status: ContentStatus) => {
     switch (status.status) {
       case "generating":
-        return { text: "Generiert gerade...", color: "text-yellow-400", icon: <Clock className="w-4 h-4" /> };
+        return {
+          text: "Generiert gerade...",
+          color: "text-yellow-400",
+          icon: <Clock className="w-4 h-4" />,
+        };
       case "uploading":
-        return { text: "Upload läuft", color: "text-blue-400", icon: <Upload className="w-4 h-4" /> };
+        return {
+          text: "Upload läuft",
+          color: "text-blue-400",
+          icon: <Upload className="w-4 h-4" />,
+        };
       case "completed":
-        return { text: "Fertig", color: "text-green-400", icon: <CheckCircle className="w-4 h-4" /> };
+        return {
+          text: "Fertig",
+          color: "text-green-400",
+          icon: <CheckCircle className="w-4 h-4" />,
+        };
       default:
-        return { text: "Inaktiv", color: "text-gray-400", icon: <Pause className="w-4 h-4" /> };
+        return {
+          text: "Inaktiv",
+          color: "text-gray-400",
+          icon: <Pause className="w-4 h-4" />,
+        };
     }
   };
 
@@ -344,7 +362,10 @@ export default function InstagramModule() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h1 className="text-4xl font-bold text-white mb-2 glitch-text" data-text="INSTAGRAM">
+        <h1
+          className="text-4xl font-bold text-white mb-2 glitch-text"
+          data-text="INSTAGRAM"
+        >
           INSTAGRAM
         </h1>
         <p className="text-gray-400 text-lg">
@@ -354,19 +375,31 @@ export default function InstagramModule() {
 
       <Tabs defaultValue="accounts" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4 bg-horror-surface border-horror-border">
-          <TabsTrigger value="accounts" className="data-[state=active]:bg-horror-accent data-[state=active]:text-black">
+          <TabsTrigger
+            value="accounts"
+            className="data-[state=active]:bg-horror-accent data-[state=active]:text-black"
+          >
             <Instagram className="w-4 h-4 mr-2" />
             Accounts
           </TabsTrigger>
-          <TabsTrigger value="automation" className="data-[state=active]:bg-horror-accent data-[state=active]:text-black">
+          <TabsTrigger
+            value="automation"
+            className="data-[state=active]:bg-horror-accent data-[state=active]:text-black"
+          >
             <Settings className="w-4 h-4 mr-2" />
             Automatisierung
           </TabsTrigger>
-          <TabsTrigger value="content" className="data-[state=active]:bg-horror-accent data-[state=active]:text-black">
+          <TabsTrigger
+            value="content"
+            className="data-[state=active]:bg-horror-accent data-[state=active]:text-black"
+          >
             <Upload className="w-4 h-4 mr-2" />
             Content
           </TabsTrigger>
-          <TabsTrigger value="stats" className="data-[state=active]:bg-horror-accent data-[state=active]:text-black">
+          <TabsTrigger
+            value="stats"
+            className="data-[state=active]:bg-horror-accent data-[state=active]:text-black"
+          >
             <TrendingUp className="w-4 h-4 mr-2" />
             Statistiken
           </TabsTrigger>
@@ -426,10 +459,16 @@ export default function InstagramModule() {
                       <div className="flex items-center gap-3">
                         <Instagram className="w-6 h-6 text-pink-500" />
                         <div>
-                          <h3 className="text-white font-semibold">@{account.username}</h3>
+                          <h3 className="text-white font-semibold">
+                            @{account.username}
+                          </h3>
                           <div className="flex items-center gap-2">
                             {getStatusIcon(account.is_connected)}
-                            <span className={`text-sm ${getStatusColor(account.is_connected)}`}>
+                            <span
+                              className={`text-sm ${getStatusColor(
+                                account.is_connected
+                              )}`}
+                            >
                               {account.is_connected ? "Verbunden" : "Getrennt"}
                             </span>
                           </div>
@@ -452,21 +491,27 @@ export default function InstagramModule() {
                           <div className="flex items-center justify-center mb-1">
                             <Users className="w-4 h-4 text-blue-400 mr-1" />
                           </div>
-                          <p className="text-white font-semibold">{stats[account.id].followers}</p>
+                          <p className="text-white font-semibold">
+                            {stats[account.id].followers}
+                          </p>
                           <p className="text-xs text-gray-400">Follower</p>
                         </div>
                         <div>
                           <div className="flex items-center justify-center mb-1">
                             <Heart className="w-4 h-4 text-red-400 mr-1" />
                           </div>
-                          <p className="text-white font-semibold">{stats[account.id].following}</p>
+                          <p className="text-white font-semibold">
+                            {stats[account.id].following}
+                          </p>
                           <p className="text-xs text-gray-400">Folge ich</p>
                         </div>
                         <div>
                           <div className="flex items-center justify-center mb-1">
                             <MessageSquare className="w-4 h-4 text-green-400 mr-1" />
                           </div>
-                          <p className="text-white font-semibold">{stats[account.id].posts}</p>
+                          <p className="text-white font-semibold">
+                            {stats[account.id].posts}
+                          </p>
                           <p className="text-xs text-gray-400">Beiträge</p>
                         </div>
                       </div>
@@ -481,7 +526,9 @@ export default function InstagramModule() {
             <Card className="bg-horror-surface border-horror-border">
               <CardContent className="text-center py-12">
                 <Instagram className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-400">Noch keine Instagram-Accounts verbunden</p>
+                <p className="text-gray-400">
+                  Noch keine Instagram-Accounts verbunden
+                </p>
                 <p className="text-sm text-gray-500 mt-2">
                   Verbinden Sie Ihren ersten Instagram-Account, um zu beginnen
                 </p>
@@ -502,16 +549,23 @@ export default function InstagramModule() {
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     {getContentStatusDisplay(contentStatus).icon}
-                    <span className={`text-sm ${getContentStatusDisplay(contentStatus).color}`}>
+                    <span
+                      className={`text-sm ${
+                        getContentStatusDisplay(contentStatus).color
+                      }`}
+                    >
                       {getContentStatusDisplay(contentStatus).text}
                     </span>
                   </div>
                   <Button
                     onClick={toggleAutomation}
-                    variant={automationConfig.auto_generate ? "destructive" : "default"}
-                    className={automationConfig.auto_generate 
-                      ? "bg-red-600 hover:bg-red-700" 
-                      : "bg-horror-accent hover:bg-horror-accent/80 text-black"
+                    variant={
+                      automationConfig.auto_generate ? "destructive" : "default"
+                    }
+                    className={
+                      automationConfig.auto_generate
+                        ? "bg-red-600 hover:bg-red-700"
+                        : "bg-horror-accent hover:bg-horror-accent/80 text-black"
                     }
                   >
                     {automationConfig.auto_generate ? (
@@ -540,11 +594,13 @@ export default function InstagramModule() {
                     className="w-full p-2 bg-horror-bg border border-horror-border rounded-md text-white"
                   >
                     <option value="">Account wählen...</option>
-                    {accounts.filter(acc => acc.is_connected).map(account => (
-                      <option key={account.id} value={account.id}>
-                        @{account.username}
-                      </option>
-                    ))}
+                    {accounts
+                      .filter((acc) => acc.is_connected)
+                      .map((account) => (
+                        <option key={account.id} value={account.id}>
+                          @{account.username}
+                        </option>
+                      ))}
                   </select>
                 </div>
               )}
@@ -557,7 +613,12 @@ export default function InstagramModule() {
                 <Textarea
                   id="topics"
                   value={automationConfig.topics}
-                  onChange={(e) => setAutomationConfig(prev => ({ ...prev, topics: e.target.value }))}
+                  onChange={(e) =>
+                    setAutomationConfig((prev) => ({
+                      ...prev,
+                      topics: e.target.value,
+                    }))
+                  }
                   placeholder="Fitness, Motivation, Lifestyle, Business..."
                   className="bg-horror-bg border-horror-border text-white"
                   rows={3}
@@ -576,8 +637,11 @@ export default function InstagramModule() {
                 </div>
                 <Switch
                   checked={automationConfig.require_approval}
-                  onCheckedChange={(checked) => 
-                    setAutomationConfig(prev => ({ ...prev, require_approval: checked }))
+                  onCheckedChange={(checked) =>
+                    setAutomationConfig((prev) => ({
+                      ...prev,
+                      require_approval: checked,
+                    }))
                   }
                   className="data-[state=checked]:bg-horror-accent"
                 />
@@ -593,12 +657,16 @@ export default function InstagramModule() {
                     onChange={(e) => setNewPostTime(e.target.value)}
                     className="bg-horror-bg border-horror-border text-white"
                   />
-                  <Button onClick={addPostTime} size="sm" className="bg-horror-accent hover:bg-horror-accent/80 text-black">
+                  <Button
+                    onClick={addPostTime}
+                    size="sm"
+                    className="bg-horror-accent hover:bg-horror-accent/80 text-black"
+                  >
                     <Plus className="w-4 h-4" />
                   </Button>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {automationConfig.post_times.map(time => (
+                  {automationConfig.post_times.map((time) => (
                     <Badge
                       key={time}
                       variant="secondary"
@@ -611,7 +679,8 @@ export default function InstagramModule() {
                 </div>
                 {automationConfig.post_times.length === 0 && (
                   <p className="text-sm text-gray-400">
-                    Keine Zeiten festgelegt - Posts werden zufällig über den Tag verteilt
+                    Keine Zeiten festgelegt - Posts werden zufällig über den Tag
+                    verteilt
                   </p>
                 )}
               </div>
@@ -627,10 +696,12 @@ export default function InstagramModule() {
                   min="1"
                   max="10"
                   value={automationConfig.posts_per_day}
-                  onChange={(e) => setAutomationConfig(prev => ({ 
-                    ...prev, 
-                    posts_per_day: parseInt(e.target.value) || 1 
-                  }))}
+                  onChange={(e) =>
+                    setAutomationConfig((prev) => ({
+                      ...prev,
+                      posts_per_day: parseInt(e.target.value) || 1,
+                    }))
+                  }
                   className="bg-horror-bg border-horror-border text-white"
                 />
               </div>
@@ -657,7 +728,9 @@ export default function InstagramModule() {
             <CardContent>
               <div className="text-center py-12">
                 <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-400">Content-Verwaltung wird implementiert</p>
+                <p className="text-gray-400">
+                  Content-Verwaltung wird implementiert
+                </p>
                 <p className="text-sm text-gray-500 mt-2">
                   Hier können Sie Beiträge verwalten, genehmigen und planen
                 </p>
@@ -678,7 +751,9 @@ export default function InstagramModule() {
             <CardContent>
               <div className="text-center py-12">
                 <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-400">Erweiterte Statistiken werden implementiert</p>
+                <p className="text-gray-400">
+                  Erweiterte Statistiken werden implementiert
+                </p>
                 <p className="text-sm text-gray-500 mt-2">
                   Follower-Wachstum, Engagement-Rate, Reichweite und mehr
                 </p>

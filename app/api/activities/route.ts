@@ -14,10 +14,10 @@ export async function GET(request: NextRequest) {
     const activities = await db.getRecentActivities(user.id, 10);
 
     // Parse and enhance activity data
-    const enhancedActivities = activities.map(activity => {
+    const enhancedActivities = activities.map((activity) => {
       let metadata = {};
       try {
-        metadata = JSON.parse(activity.metadata || '{}');
+        metadata = JSON.parse(activity.metadata || "{}");
       } catch (e) {
         metadata = {};
       }
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
         metadata,
         created_at: activity.created_at,
         // Format for display
-        display_time: new Date(activity.created_at).toLocaleString('de-DE'),
+        display_time: new Date(activity.created_at).toLocaleString("de-DE"),
         display_action: getDisplayAction(activity.action, activity.module_type),
       };
     });
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
         total_activities: activities.length,
         last_login: getLastLogin(activities),
         last_logout: getLastLogout(activities),
-      }
+      },
     });
   } catch (error) {
     console.error("Error fetching activities:", error);
@@ -52,19 +52,19 @@ export async function GET(request: NextRequest) {
 
 function getDisplayAction(action: string, moduleType: string): string {
   const actionMap: { [key: string]: string } = {
-    'login': 'Anmeldung',
-    'logout': 'Abmeldung',
-    'toggle': 'Modul umgeschaltet',
-    'profile_update': 'Profil aktualisiert',
-    'password_change': 'Passwort geändert',
+    login: "Anmeldung",
+    logout: "Abmeldung",
+    toggle: "Modul umgeschaltet",
+    profile_update: "Profil aktualisiert",
+    password_change: "Passwort geändert",
   };
 
   const moduleMap: { [key: string]: string } = {
-    'auth': 'Authentifizierung',
-    'profile': 'Profil',
-    'instagram': 'Instagram',
-    'youtube': 'YouTube',
-    'admin': 'Administration',
+    auth: "Authentifizierung",
+    profile: "Profil",
+    instagram: "Instagram",
+    youtube: "YouTube",
+    admin: "Administration",
   };
 
   const actionText = actionMap[action] || action;
@@ -74,11 +74,17 @@ function getDisplayAction(action: string, moduleType: string): string {
 }
 
 function getLastLogin(activities: any[]): string | null {
-  const loginActivity = activities.find(a => a.action === 'login' && a.status === 'success');
-  return loginActivity ? new Date(loginActivity.created_at).toLocaleString('de-DE') : null;
+  const loginActivity = activities.find(
+    (a) => a.action === "login" && a.status === "success"
+  );
+  return loginActivity
+    ? new Date(loginActivity.created_at).toLocaleString("de-DE")
+    : null;
 }
 
 function getLastLogout(activities: any[]): string | null {
-  const logoutActivity = activities.find(a => a.action === 'logout');
-  return logoutActivity ? new Date(logoutActivity.created_at).toLocaleString('de-DE') : null;
+  const logoutActivity = activities.find((a) => a.action === "logout");
+  return logoutActivity
+    ? new Date(logoutActivity.created_at).toLocaleString("de-DE")
+    : null;
 }

@@ -16,7 +16,10 @@ export async function GET(
     const stats = await instagramService.getAccountStats(accountId);
 
     if (!stats) {
-      return NextResponse.json({ error: "Account nicht gefunden" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Account nicht gefunden" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json(stats);

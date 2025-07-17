@@ -207,15 +207,15 @@ export default function SettingsPage() {
 
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className="grid w-full grid-cols-2 bg-horror-surface border-horror-border">
-          <TabsTrigger 
-            value="profile" 
+          <TabsTrigger
+            value="profile"
             className="data-[state=active]:bg-horror-accent data-[state=active]:text-black"
           >
             <User className="w-4 h-4 mr-2" />
             Profil
           </TabsTrigger>
-          <TabsTrigger 
-            value="system" 
+          <TabsTrigger
+            value="system"
             className="data-[state=active]:bg-horror-accent data-[state=active]:text-black"
           >
             <Monitor className="w-4 h-4 mr-2" />
@@ -252,7 +252,11 @@ export default function SettingsPage() {
                         ADMIN
                       </span>
                     )}
-                    <Button variant="outline" size="sm" className="border-horror-border text-gray-300">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-horror-border text-gray-300"
+                    >
                       <Camera className="w-4 h-4 mr-2" />
                       Bild ändern
                     </Button>
@@ -271,7 +275,10 @@ export default function SettingsPage() {
                         type="text"
                         value={profileForm.name}
                         onChange={(e) =>
-                          setProfileForm({ ...profileForm, name: e.target.value })
+                          setProfileForm({
+                            ...profileForm,
+                            name: e.target.value,
+                          })
                         }
                         className="bg-horror-bg border-horror-border text-white"
                         placeholder="Ihr vollständiger Name"
@@ -287,7 +294,10 @@ export default function SettingsPage() {
                         type="email"
                         value={profileForm.email}
                         onChange={(e) =>
-                          setProfileForm({ ...profileForm, email: e.target.value })
+                          setProfileForm({
+                            ...profileForm,
+                            email: e.target.value,
+                          })
                         }
                         className="bg-horror-bg border-horror-border text-white"
                         placeholder="ihre@email.com"

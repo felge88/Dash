@@ -393,6 +393,29 @@ export class InstagramService {
       hashtags: selectedHashtags,
     };
   }
+
+  async getAutomationConfig(userId: number): Promise<AutomationConfig | null> {
+    try {
+      const config = await database.get(
+        "SELECT * FROM instagram_automation WHERE user_id = ? ORDER BY created_at DESC LIMIT 1",
+        [userId]
+      );
+
+      if (!config) return null;
+
+      return {
+        account_id: config.account_id,
+        auto_generate: config.auto_generate_content,
+        require_approval: config.require_approval,
+        topics: config.topics,
+        post_times: JSON.parse(config.post_times || "[]"),
+        custom_prompt: config.custom_prompt,
+      };
+    } catch (error) {
+      console.error("Get automation config error:", error);
+      return null;
+    }
+  }
 }
 
 export default InstagramService.getInstance();

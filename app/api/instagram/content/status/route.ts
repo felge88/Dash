@@ -27,7 +27,7 @@ export async function GET() {
       // Simulate different statuses based on time or other factors
       const now = new Date();
       const minute = now.getMinutes();
-      
+
       if (minute < 15) {
         status.status = "generating";
         status.current_task = "Generiere Bild und Text...";

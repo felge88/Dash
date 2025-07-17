@@ -2,7 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Activity, LogIn, LogOut, Shield, AlertTriangle, Check } from "lucide-react";
+import {
+  Activity,
+  LogIn,
+  LogOut,
+  Shield,
+  AlertTriangle,
+  Check,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -154,7 +161,12 @@ export default function LoginActivities({ userId }: LoginActivitiesProps) {
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={getActivityColor(activity.status, activity.action)}>
+                    <div
+                      className={getActivityColor(
+                        activity.status,
+                        activity.action
+                      )}
+                    >
                       {getActivityIcon(activity.action)}
                     </div>
                     <div>
@@ -162,7 +174,9 @@ export default function LoginActivities({ userId }: LoginActivitiesProps) {
                         {activity.display_action}
                       </p>
                       {activity.message && (
-                        <p className="text-gray-400 text-xs">{activity.message}</p>
+                        <p className="text-gray-400 text-xs">
+                          {activity.message}
+                        </p>
                       )}
                       {activity.metadata?.ip && (
                         <p className="text-gray-500 text-xs">
@@ -180,9 +194,9 @@ export default function LoginActivities({ userId }: LoginActivitiesProps) {
                     {suspicious && (
                       <div className="flex items-center gap-1">
                         <AlertTriangle className="w-4 h-4 text-red-400" />
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="text-xs border-green-400 text-green-400 hover:bg-green-400/10"
                         >
                           <Check className="w-3 h-3 mr-1" />
@@ -191,7 +205,11 @@ export default function LoginActivities({ userId }: LoginActivitiesProps) {
                       </div>
                     )}
                     <Badge
-                      variant={activity.status === "success" ? "default" : "destructive"}
+                      variant={
+                        activity.status === "success"
+                          ? "default"
+                          : "destructive"
+                      }
                       className={
                         activity.status === "success"
                           ? "bg-horror-accent/20 text-horror-accent"
@@ -201,7 +219,9 @@ export default function LoginActivities({ userId }: LoginActivitiesProps) {
                       {activity.status}
                     </Badge>
                     <div className="text-right">
-                      <p className="text-xs text-gray-500">{activity.display_time}</p>
+                      <p className="text-xs text-gray-500">
+                        {activity.display_time}
+                      </p>
                     </div>
                   </div>
                 </motion.div>
@@ -216,9 +236,9 @@ export default function LoginActivities({ userId }: LoginActivitiesProps) {
 
         {/* Refresh Button */}
         <div className="pt-4 border-t border-horror-border/30">
-          <Button 
-            onClick={loadActivities} 
-            variant="outline" 
+          <Button
+            onClick={loadActivities}
+            variant="outline"
             size="sm"
             className="w-full border-horror-border text-gray-300 hover:bg-horror-bg/50"
           >
