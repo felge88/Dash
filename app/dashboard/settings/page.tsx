@@ -1,17 +1,69 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { Bell, Shield, Palette, Monitor } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Bell, Shield, Monitor } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 export default function SettingsPage() {
-  const [notifications, setNotifications] = useState(true)
-  const [autoStart, setAutoStart] = useState(false)
-  const [darkMode, setDarkMode] = useState(true)
-  const [soundEffects, setSoundEffects] = useState(true)
+  const [notifications, setNotifications] = useState(true);
+  const [soundEffects, setSoundEffects] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Load settings on component mount
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      const response = await fetch("/api/settings");
+      if (response.ok) {
+        const data = await response.json();
+        const settings = data.settings;
+
+        setNotifications(settings.notifications ?? true);
+        setSoundEffects(settings.soundEffects ?? true);
+      }
+    } catch (error) {
+      console.error("Error loading settings:", error);
+    }
+  };
+
+  const saveSettings = async (newSettings: any) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/settings", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newSettings),
+      });
+
+      if (response.ok) {
+        console.log("Einstellungen gespeichert");
+      } else {
+        console.error("Fehler beim Speichern der Einstellungen");
+      }
+    } catch (error) {
+      console.error("Error saving settings:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleNotificationsChange = (checked: boolean) => {
+    setNotifications(checked);
+    saveSettings({ notifications: checked, soundEffects });
+  };
+
+  const handleSoundEffectsChange = (checked: boolean) => {
+    setSoundEffects(checked);
+    saveSettings({ notifications, soundEffects: checked });
+  };
 
   const settingsGroups = [
     {
@@ -22,49 +74,33 @@ export default function SettingsPage() {
           label: "Push-Benachrichtigungen",
           description: "Erhalte Benachrichtigungen über Modul-Aktivitäten",
           checked: notifications,
-          onChange: setNotifications,
+          onChange: handleNotificationsChange,
         },
         {
           label: "Sound-Effekte",
           description: "Spiele Sounds bei wichtigen Ereignissen ab",
           checked: soundEffects,
-          onChange: setSoundEffects,
+          onChange: handleSoundEffectsChange,
         },
       ],
     },
-    {
-      title: "Automatisierung",
-      icon: Monitor,
-      settings: [
-        {
-          label: "Auto-Start Module",
-          description: "Starte Module automatisch beim Login",
-          checked: autoStart,
-          onChange: setAutoStart,
-        },
-      ],
-    },
-    {
-      title: "Erscheinungsbild",
-      icon: Palette,
-      settings: [
-        {
-          label: "Dark Mode",
-          description: "Verwende das dunkle Design-Theme",
-          checked: darkMode,
-          onChange: setDarkMode,
-        },
-      ],
-    },
-  ]
+  ];
 
   return (
     <div className="space-y-8">
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-4xl font-bold text-white mb-2 glitch-text" data-text="EINSTELLUNGEN">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <h1
+          className="text-4xl font-bold text-white mb-2 glitch-text"
+          data-text="EINSTELLUNGEN"
+        >
           EINSTELLUNGEN
         </h1>
-        <p className="text-gray-400 text-lg">Konfiguriere deine Anwendungseinstellungen</p>
+        <p className="text-gray-400 text-lg">
+          Konfiguriere deine Anwendungseinstellungen
+        </p>
       </motion.div>
 
       <div className="space-y-6">
@@ -88,12 +124,18 @@ export default function SettingsPage() {
                     key={setting.label}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: groupIndex * 0.1 + settingIndex * 0.05 }}
+                    transition={{
+                      delay: groupIndex * 0.1 + settingIndex * 0.05,
+                    }}
                     className="flex items-center justify-between p-4 bg-horror-bg rounded-lg border border-horror-border/50"
                   >
                     <div className="space-y-1">
-                      <Label className="text-white font-medium">{setting.label}</Label>
-                      <p className="text-sm text-gray-400">{setting.description}</p>
+                      <Label className="text-white font-medium">
+                        {setting.label}
+                      </Label>
+                      <p className="text-sm text-gray-400">
+                        {setting.description}
+                      </p>
                     </div>
                     <Switch
                       checked={setting.checked}
@@ -109,7 +151,11 @@ export default function SettingsPage() {
       </div>
 
       {/* System Info */}
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
         <Card className="bg-horror-surface border-horror-border">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
@@ -125,7 +171,9 @@ export default function SettingsPage() {
               </div>
               <div className="space-y-2">
                 <p className="text-sm text-gray-400">Letztes Update</p>
-                <p className="text-white font-mono">{new Date().toLocaleDateString("de-DE")}</p>
+                <p className="text-white font-mono">
+                  {new Date().toLocaleDateString("de-DE")}
+                </p>
               </div>
               <div className="space-y-2">
                 <p className="text-sm text-gray-400">Uptime</p>
@@ -143,5 +191,5 @@ export default function SettingsPage() {
         </Card>
       </motion.div>
     </div>
-  )
+  );
 }

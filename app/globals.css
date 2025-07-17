@@ -96,6 +96,19 @@
     @apply text-horror-danger;
     text-shadow: 0 0 10px rgba(255, 0, 64, 0.8);
   }
+
+  /* Responsive Layout für Sidebar */
+  .dashboard-main {
+    transition: margin-left 0.3s ease;
+  }
+
+  .sidebar-collapsed + .dashboard-main {
+    margin-left: 64px;
+  }
+
+  .sidebar-expanded + .dashboard-main {
+    margin-left: 256px;
+  }
 }
 
 .preloader {

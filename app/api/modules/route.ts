@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authenticateRequest, requireAuth } from "@/lib/auth-new";
+import { getCurrentUser } from "@/lib/auth";
 import database from "@/lib/database";
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await authenticateRequest(request);
-    requireAuth(user);
+    const user = await getCurrentUser();
 
-    const modules = await database.getModulesForUser(user!.id);
+    if (!user) {
+      return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
+    }
+
+    const modules = await database.getModulesForUser(user.id);
 
     return NextResponse.json({
       success: true,
@@ -24,17 +27,48 @@ export async function GET(request: NextRequest) {
       })),
     });
   } catch (error) {
-    if (error instanceof Error && error.message === "Authentication required") {
+    console.error("Modules API error:", error);
+    return NextResponse.json(
+      { success: false, error: "Server-Fehler" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const user = await getCurrentUser();
+
+    if (!user || !user.is_admin) {
       return NextResponse.json(
-        { success: false, error: "Authentication required" },
-        { status: 401 }
+        { error: "Keine Berechtigung" },
+        { status: 403 }
       );
     }
 
-    console.error("Modules API error:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 }
+    const { name, description, type } = await request.json();
+
+    if (!name || !type) {
+      return NextResponse.json(
+        { error: "Name und Typ sind erforderlich" },
+        { status: 400 }
+      );
+    }
+
+    // Create new module
+    const result = await database.run(
+      `INSERT INTO modules (name, description, type, is_active) 
+       VALUES (?, ?, ?, ?)`,
+      [name, description || null, type, false]
     );
+
+    return NextResponse.json({
+      success: true,
+      moduleId: result.lastID,
+      message: "Modul erfolgreich erstellt",
+    });
+  } catch (error) {
+    console.error("Module creation error:", error);
+    return NextResponse.json({ error: "Server-Fehler" }, { status: 500 });
   }
 }

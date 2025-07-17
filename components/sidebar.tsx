@@ -1,18 +1,28 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { motion } from "framer-motion"
-import { Home, Bot, Shield, BarChart3, User, Settings, LogOut, Menu, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
+import {
+  Home,
+  Bot,
+  Shield,
+  BarChart3,
+  User,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface SidebarProps {
   user: {
-    username: string
-    is_admin: boolean
-  }
+    username: string;
+    is_admin: boolean;
+  };
 }
 
 const menuItems = [
@@ -21,24 +31,52 @@ const menuItems = [
   { icon: BarChart3, label: "Statistiken", href: "/dashboard/stats" },
   { icon: User, label: "Profil", href: "/dashboard/profile" },
   { icon: Settings, label: "Einstellungen", href: "/dashboard/settings" },
-]
+];
 
-const adminItems = [{ icon: Shield, label: "Admin", href: "/dashboard/admin" }]
+const adminItems = [{ icon: Shield, label: "Admin", href: "/dashboard/admin" }];
 
 export default function Sidebar({ user }: SidebarProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
-  const pathname = usePathname()
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const pathname = usePathname();
 
-  const allItems = user.is_admin ? [...menuItems, ...adminItems] : menuItems
+  const allItems = user.is_admin ? [...menuItems, ...adminItems] : menuItems;
+
+  // Update main content margin when sidebar changes
+  const updateMainContentMargin = (collapsed: boolean) => {
+    const mainContent = document.getElementById("main-content");
+    const dashboardLayout = document.getElementById("dashboard-layout");
+
+    if (mainContent) {
+      mainContent.style.marginLeft = collapsed ? "64px" : "256px";
+    }
+
+    if (dashboardLayout) {
+      dashboardLayout.className = collapsed
+        ? dashboardLayout.className.replace(
+            "sidebar-expanded",
+            "sidebar-collapsed"
+          )
+        : dashboardLayout.className.replace(
+            "sidebar-collapsed",
+            "sidebar-expanded"
+          );
+    }
+  };
+
+  const toggleSidebar = () => {
+    const newCollapsedState = !isCollapsed;
+    setIsCollapsed(newCollapsedState);
+    updateMainContentMargin(newCollapsedState);
+  };
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" })
-      window.location.href = "/login"
+      await fetch("/api/auth/logout", { method: "POST" });
+      window.location.href = "/login";
     } catch (error) {
-      console.error("Logout error:", error)
+      console.error("Logout error:", error);
     }
-  }
+  };
 
   return (
     <motion.div
@@ -46,7 +84,7 @@ export default function Sidebar({ user }: SidebarProps) {
       animate={{ x: 0 }}
       className={cn(
         "fixed left-0 top-0 h-full bg-horror-surface border-r border-horror-border z-50 transition-all duration-300",
-        isCollapsed ? "w-16" : "w-64",
+        isCollapsed ? "w-16" : "w-64"
       )}
     >
       <div className="flex flex-col h-full">
@@ -66,7 +104,7 @@ export default function Sidebar({ user }: SidebarProps) {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsCollapsed(!isCollapsed)}
+              onClick={toggleSidebar}
               className="text-horror-accent hover:bg-horror-accent/10"
             >
               {isCollapsed ? <Menu size={20} /> : <X size={20} />}
@@ -78,7 +116,7 @@ export default function Sidebar({ user }: SidebarProps) {
         <nav className="flex-1 p-4">
           <ul className="space-y-2">
             {allItems.map((item) => {
-              const isActive = pathname === item.href
+              const isActive = pathname === item.href;
               return (
                 <li key={item.href}>
                   <Link href={item.href}>
@@ -89,15 +127,17 @@ export default function Sidebar({ user }: SidebarProps) {
                         "flex items-center gap-3 p-3 rounded-lg transition-all duration-300",
                         isActive
                           ? "bg-horror-accent/20 text-horror-accent horror-border"
-                          : "text-gray-400 hover:text-horror-accent hover:bg-horror-accent/10",
+                          : "text-gray-400 hover:text-horror-accent hover:bg-horror-accent/10"
                       )}
                     >
                       <item.icon size={20} />
-                      {!isCollapsed && <span className="font-medium">{item.label}</span>}
+                      {!isCollapsed && (
+                        <span className="font-medium">{item.label}</span>
+                      )}
                     </motion.div>
                   </Link>
                 </li>
-              )
+              );
             })}
           </ul>
         </nav>
@@ -109,7 +149,9 @@ export default function Sidebar({ user }: SidebarProps) {
               <p className="text-sm text-gray-400">Angemeldet als</p>
               <p className="font-medium text-horror-accent">{user.username}</p>
               {user.is_admin && (
-                <span className="text-xs bg-horror-accent/20 text-horror-accent px-2 py-1 rounded-full">ADMIN</span>
+                <span className="text-xs bg-horror-accent/20 text-horror-accent px-2 py-1 rounded-full">
+                  ADMIN
+                </span>
               )}
             </div>
           )}
@@ -118,7 +160,7 @@ export default function Sidebar({ user }: SidebarProps) {
             variant="ghost"
             className={cn(
               "w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-400/10",
-              isCollapsed && "justify-center",
+              isCollapsed && "justify-center"
             )}
           >
             <LogOut size={20} />
@@ -127,5 +169,5 @@ export default function Sidebar({ user }: SidebarProps) {
         </div>
       </div>
     </motion.div>
-  )
+  );
 }

@@ -1,15 +1,17 @@
-import { getCurrentUser } from "@/lib/auth"
-import { db } from "@/lib/database"
-import DashboardContent from "./dashboard-content"
+import { getCurrentUser } from "@/lib/auth";
+import db from "@/lib/database";
+import DashboardContent from "./dashboard-content";
 
 export default async function DashboardPage() {
-  const user = await getCurrentUser()
-  if (!user) return null
+  const user = await getCurrentUser();
+  if (!user) return null;
 
-  const modules = user.is_admin ? await db.getAllModules() : await db.getUserModules(user.id)
-  const activeModules = modules.filter((m) => m.is_active)
-  const recentLogs = await db.getModuleLogs(undefined, 10)
-  const allUsers = user.is_admin ? await db.getAllUsers() : []
+  const modules = user.is_admin
+    ? await db.getAllModules()
+    : await db.getModulesForUser(user.id);
+  const activeModules = modules.filter((m) => m.is_active || m.user_active);
+  const recentLogs = await db.getRecentActivities(user.id, 10);
+  const allUsers = user.is_admin ? await db.getAllUsers() : [];
 
   const stats = [
     {
@@ -41,7 +43,7 @@ export default async function DashboardPage() {
       icon: "TrendingUp",
       color: "text-orange-400",
     },
-  ]
+  ];
 
-  return <DashboardContent user={user} stats={stats} recentLogs={recentLogs} />
+  return <DashboardContent user={user} stats={stats} recentLogs={recentLogs} />;
 }

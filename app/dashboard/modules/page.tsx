@@ -1,42 +1,46 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
-import ModuleCardEnhanced from "@/components/module-card-enhanced"
-import AnimatedBackground from "@/components/animated-background"
-import { Card, CardContent } from "@/components/ui/card"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import ModuleCardEnhanced from "@/components/module-card-enhanced";
+import AnimatedBackground from "@/components/animated-background";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface Module {
-  id: number
-  name: string
-  description: string
-  is_active: boolean
-  script_path: string
+  id: number;
+  name: string;
+  description: string;
+  type: string;
+  is_active: boolean;
+  user_active: boolean;
+  config: any;
+  user_config: any;
+  created_at: string;
 }
 
 export default function ModulesPage() {
-  const [modules, setModules] = useState<Module[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
+  const [modules, setModules] = useState<Module[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    fetchModules()
-  }, [])
+    fetchModules();
+  }, []);
 
   const fetchModules = async () => {
     try {
-      const response = await fetch("/api/modules")
+      const response = await fetch("/api/modules");
       if (response.ok) {
-        const data = await response.json()
-        setModules(data)
+        const data = await response.json();
+        setModules(data.modules || []);
       }
     } catch (error) {
-      console.error("Error fetching modules:", error)
+      console.error("Error fetching modules:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleToggleModule = async (moduleId: number, isActive: boolean) => {
     try {
@@ -44,25 +48,29 @@ export default function ModulesPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ is_active: isActive }),
-      })
+      });
 
       if (response.ok) {
         setModules((prev) =>
-          prev.map((module) => (module.id === moduleId ? { ...module, is_active: isActive } : module)),
-        )
+          prev.map((module) =>
+            module.id === moduleId
+              ? { ...module, user_active: isActive }
+              : module
+          )
+        );
       }
     } catch (error) {
-      console.error("Error toggling module:", error)
+      console.error("Error toggling module:", error);
     }
-  }
+  };
 
   const handleModuleClick = (moduleId: number) => {
-    const module = modules.find((m) => m.id === moduleId)
+    const module = modules.find((m) => m.id === moduleId);
     if (module) {
-      const moduleSlug = module.name.toLowerCase().replace(/\s+/g, "-")
-      router.push(`/dashboard/modules/${moduleSlug}`)
+      const moduleSlug = module.name.toLowerCase().replace(/\s+/g, "-");
+      router.push(`/dashboard/modules/${moduleSlug}`);
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -72,24 +80,35 @@ export default function ModulesPage() {
           <div className="text-center">
             <motion.div
               animate={{ rotate: 360 }}
-              transition={{ duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+              transition={{
+                duration: 1,
+                repeat: Number.POSITIVE_INFINITY,
+                ease: "linear",
+              }}
               className="w-12 h-12 border-4 border-horror-accent border-t-transparent rounded-full mx-auto mb-4"
             />
             <p className="text-gray-400 text-lg">Module werden geladen...</p>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-8 relative">
       <AnimatedBackground variant="default" />
 
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
         <motion.h1
           animate={{
-            textShadow: ["0 0 20px rgba(0,255,65,0.8)", "0 0 30px rgba(0,255,65,1)", "0 0 20px rgba(0,255,65,0.8)"],
+            textShadow: [
+              "0 0 20px rgba(0,255,65,0.8)",
+              "0 0 30px rgba(0,255,65,1)",
+              "0 0 20px rgba(0,255,65,0.8)",
+            ],
           }}
           transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
           className="text-4xl font-bold text-horror-accent mb-2 glitch-text"
@@ -97,7 +116,9 @@ export default function ModulesPage() {
         >
           MODULE
         </motion.h1>
-        <p className="text-gray-400 text-lg">Wähle ein Modul aus, um es zu verwalten</p>
+        <p className="text-gray-400 text-lg">
+          Wähle ein Modul aus, um es zu verwalten
+        </p>
       </motion.div>
 
       {modules.length > 0 ? (
@@ -114,7 +135,11 @@ export default function ModulesPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <ModuleCardEnhanced module={module} onToggle={handleToggleModule} onClick={handleModuleClick} />
+              <ModuleCardEnhanced
+                module={module}
+                onToggle={handleToggleModule}
+                onClick={handleModuleClick}
+              />
             </motion.div>
           ))}
         </motion.div>
@@ -129,10 +154,12 @@ export default function ModulesPage() {
               🤖
             </motion.div>
             <p className="text-gray-400 text-xl mb-4">Keine Module verfügbar</p>
-            <p className="text-sm text-gray-500">Kontaktiere den Administrator, um Zugriff auf Module zu erhalten.</p>
+            <p className="text-sm text-gray-500">
+              Kontaktiere den Administrator, um Zugriff auf Module zu erhalten.
+            </p>
           </CardContent>
         </Card>
       )}
     </div>
-  )
+  );
 }

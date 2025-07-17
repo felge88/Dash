@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { authenticateRequest, requireAuth } from "@/lib/auth-new";
+import { getCurrentUser } from "@/lib/auth";
 import database from "@/lib/database";
 
 interface ModuleToggleRequest {
@@ -11,13 +11,16 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const user = await authenticateRequest(request);
-    requireAuth(user);
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
+    }
 
     const moduleId = parseInt(params.id);
     if (isNaN(moduleId)) {
       return NextResponse.json(
-        { success: false, error: "Invalid module ID" },
+        { success: false, error: "Ungültige Modul-ID" },
         { status: 400 }
       );
     }
@@ -27,27 +30,27 @@ export async function POST(
 
     if (typeof is_active !== "boolean") {
       return NextResponse.json(
-        { success: false, error: "is_active must be a boolean" },
+        { success: false, error: "is_active muss ein Boolean sein" },
         { status: 400 }
       );
     }
 
     // Toggle module for user
-    await database.toggleUserModule(user!.id, moduleId, is_active);
+    await database.toggleUserModule(user.id, moduleId, is_active);
 
     // Log activity
     await database.logActivity(
-      user!.id,
+      user.id,
       "module",
-      is_active ? "module_enabled" : "module_disabled",
+      is_active ? "activate" : "deactivate",
       "success",
-      `Module ${moduleId} ${is_active ? "enabled" : "disabled"}`,
+      `Modul ${is_active ? "aktiviert" : "deaktiviert"}`,
       { module_id: moduleId }
     );
 
     return NextResponse.json({
       success: true,
-      message: `Module ${is_active ? "enabled" : "disabled"} successfully`,
+      message: `Modul erfolgreich ${is_active ? "aktiviert" : "deaktiviert"}`,
     });
   } catch (error) {
     if (error instanceof Error && error.message === "Authentication required") {
