@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyToken } from "@/lib/auth-new";
+import { verifyToken } from "@/lib/auth";
 
 export function middleware(request: NextRequest) {
   // Skip middleware for public routes
