@@ -29,7 +29,6 @@ const menuItems = [
   { icon: Home, label: "Dashboard", href: "/dashboard" },
   { icon: Bot, label: "Module", href: "/dashboard/modules" },
   { icon: BarChart3, label: "Statistiken", href: "/dashboard/stats" },
-  { icon: User, label: "Profil", href: "/dashboard/profile" },
   { icon: Settings, label: "Einstellungen", href: "/dashboard/settings" },
 ];
 
