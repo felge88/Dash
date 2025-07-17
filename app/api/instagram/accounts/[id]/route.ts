@@ -21,14 +21,19 @@ export async function DELETE(
     );
 
     if (!account) {
-      return NextResponse.json({ error: "Account nicht gefunden" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Account nicht gefunden" },
+        { status: 404 }
+      );
     }
 
     // Delete account and related data
     await db.run("DELETE FROM instagram_accounts WHERE id = ?", [accountId]);
-    
+
     // Delete related automation config
-    await db.run("DELETE FROM instagram_automation WHERE account_id = ?", [accountId]);
+    await db.run("DELETE FROM instagram_automation WHERE account_id = ?", [
+      accountId,
+    ]);
 
     // Log activity
     await db.logActivity(
