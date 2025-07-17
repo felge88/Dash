@@ -16,9 +16,19 @@ export async function PUT(request: NextRequest) {
     // Update user profile
     await db.updateUserProfile(user.id, { name, email });
 
+    // Get updated user data to confirm changes
+    const updatedUser = await db.getUserById(user.id);
+
     return NextResponse.json({
       success: true,
       message: "Profil erfolgreich aktualisiert",
+      user: {
+        id: updatedUser.id,
+        username: updatedUser.username,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        profile_image: updatedUser.profile_image,
+      },
     });
   } catch (error) {
     console.error("Profile update error:", error);

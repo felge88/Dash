@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authenticateRequest } from "@/lib/auth-new";
+import { getCurrentUser } from "@/lib/auth";
 import database from "@/lib/database";
 
 export async function POST(request: NextRequest) {
   try {
     // Get current user for logging
-    const user = await authenticateRequest(request);
+    const user = await getCurrentUser();
 
     if (user) {
       // Log logout activity
@@ -18,14 +18,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({
+    // Create response with cleared cookies
+    const response = NextResponse.json({
       success: true,
-      message: "Logged out successfully",
+      message: "Erfolgreich abgemeldet",
     });
+
+    // Clear the authentication cookie
+    response.cookies.set("auth-token", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 0, // Immediately expire
+      path: "/",
+    });
+
+    return response;
   } catch (error) {
     console.error("Logout API error:", error);
     return NextResponse.json(
-      { success: false, error: "Internal server error" },
+      { success: false, error: "Server-Fehler" },
       { status: 500 }
     );
   }

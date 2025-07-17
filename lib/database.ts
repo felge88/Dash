@@ -307,10 +307,16 @@ class Database {
 
     if (fields.length > 0) {
       values.push(userId);
-      await this.run(
+      const result = await this.run(
         `UPDATE users SET ${fields.join(", ")} WHERE id = ?`,
         values
       );
+      
+      if (result.changes === 0) {
+        throw new Error("User not found or no changes made");
+      }
+      
+      console.log(`Updated user ${userId} profile:`, { fields, changes: result.changes });
     }
   }
 

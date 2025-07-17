@@ -46,10 +46,17 @@ export async function PUT(request: NextRequest) {
     const newPasswordHash = await hashPassword(newPassword);
 
     // Update password in database
-    await db.run("UPDATE users SET password_hash = ? WHERE id = ?", [
+    const result = await db.run("UPDATE users SET password_hash = ? WHERE id = ?", [
       newPasswordHash,
       user.id,
     ]);
+
+    if (result.changes === 0) {
+      return NextResponse.json(
+        { error: "Passwort konnte nicht aktualisiert werden" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

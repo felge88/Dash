@@ -2,6 +2,27 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getCurrentUser, hashPassword } from "@/lib/auth";
 import db from "@/lib/database";
 
+export async function GET() {
+  try {
+    const user = await getCurrentUser();
+    if (!user || !user.is_admin) {
+      return NextResponse.json(
+        { error: "Keine Berechtigung" },
+        { status: 403 }
+      );
+    }
+
+    const users = await db.getAllUsers();
+    return NextResponse.json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return NextResponse.json(
+      { error: "Benutzer konnten nicht geladen werden" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser();
