@@ -1,6 +1,6 @@
 import { getCurrentUser } from "@/lib/auth";
 import db from "@/lib/database";
-"use client";
+("use client");
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -78,7 +78,7 @@ export default function DashboardContent() {
       const token = localStorage.getItem("token");
       const response = await fetch("/api/dashboard/stats", {
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -157,21 +157,31 @@ export default function DashboardContent() {
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case "login": return <Shield className="w-4 h-4 text-green-400" />;
-      case "instagram_post": return <Instagram className="w-4 h-4 text-purple-400" />;
-      case "content_approval_created": return <Clock className="w-4 h-4 text-yellow-400" />;
-      case "content_approval_approved": return <CheckCircle className="w-4 h-4 text-green-400" />;
-      case "automation_started": return <Zap className="w-4 h-4 text-blue-400" />;
-      default: return <Activity className="w-4 h-4 text-gray-400" />;
+      case "login":
+        return <Shield className="w-4 h-4 text-green-400" />;
+      case "instagram_post":
+        return <Instagram className="w-4 h-4 text-purple-400" />;
+      case "content_approval_created":
+        return <Clock className="w-4 h-4 text-yellow-400" />;
+      case "content_approval_approved":
+        return <CheckCircle className="w-4 h-4 text-green-400" />;
+      case "automation_started":
+        return <Zap className="w-4 h-4 text-blue-400" />;
+      default:
+        return <Activity className="w-4 h-4 text-gray-400" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "success": return "text-green-400";
-      case "error": return "text-red-400";
-      case "info": return "text-blue-400";
-      default: return "text-gray-400";
+      case "success":
+        return "text-green-400";
+      case "error":
+        return "text-red-400";
+      case "info":
+        return "text-blue-400";
+      default:
+        return "text-gray-400";
     }
   };
 
@@ -213,7 +223,10 @@ export default function DashboardContent() {
         className="flex items-center justify-between"
       >
         <div>
-          <h1 className="text-4xl font-bold text-white mb-2 glitch-text" data-text="DASHBOARD">
+          <h1
+            className="text-4xl font-bold text-white mb-2 glitch-text"
+            data-text="DASHBOARD"
+          >
             DASHBOARD
           </h1>
           <p className="text-gray-400 text-lg">
@@ -226,7 +239,9 @@ export default function DashboardContent() {
           variant="outline"
           className="border-horror-accent text-horror-accent hover:bg-horror-accent hover:text-black"
         >
-          <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
+          <RefreshCw
+            className={`w-4 h-4 mr-2 ${refreshing ? "animate-spin" : ""}`}
+          />
           Aktualisieren
         </Button>
       </motion.div>
@@ -244,7 +259,8 @@ export default function DashboardContent() {
                 <div>
                   <p className="text-sm text-gray-400">Aktive Module</p>
                   <p className="text-2xl font-bold text-white">
-                    {stats.user_stats.active_modules}/{stats.user_stats.total_modules}
+                    {stats.user_stats.active_modules}/
+                    {stats.user_stats.total_modules}
                   </p>
                 </div>
                 <Settings className="w-8 h-8 text-horror-accent" />
@@ -316,19 +332,31 @@ export default function DashboardContent() {
 
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4 bg-horror-surface border-horror-border">
-          <TabsTrigger value="overview" className="data-[state=active]:bg-horror-accent data-[state=active]:text-black">
+          <TabsTrigger
+            value="overview"
+            className="data-[state=active]:bg-horror-accent data-[state=active]:text-black"
+          >
             <BarChart3 className="w-4 h-4 mr-2" />
             Übersicht
           </TabsTrigger>
-          <TabsTrigger value="instagram" className="data-[state=active]:bg-horror-accent data-[state=active]:text-black">
+          <TabsTrigger
+            value="instagram"
+            className="data-[state=active]:bg-horror-accent data-[state=active]:text-black"
+          >
             <Instagram className="w-4 h-4 mr-2" />
             Instagram
           </TabsTrigger>
-          <TabsTrigger value="activities" className="data-[state=active]:bg-horror-accent data-[state=active]:text-black">
+          <TabsTrigger
+            value="activities"
+            className="data-[state=active]:bg-horror-accent data-[state=active]:text-black"
+          >
             <Activity className="w-4 h-4 mr-2" />
             Aktivitäten
           </TabsTrigger>
-          <TabsTrigger value="system" className="data-[state=active]:bg-horror-accent data-[state=active]:text-black">
+          <TabsTrigger
+            value="system"
+            className="data-[state=active]:bg-horror-accent data-[state=active]:text-black"
+          >
             <Shield className="w-4 h-4 mr-2" />
             System
           </TabsTrigger>
@@ -390,25 +418,27 @@ export default function DashboardContent() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button 
+                <Button
                   className="w-full justify-start bg-purple-600 hover:bg-purple-700"
-                  onClick={() => window.location.href = "/dashboard/modules/instagram"}
+                  onClick={() =>
+                    (window.location.href = "/dashboard/modules/instagram")
+                  }
                 >
                   <Instagram className="w-4 h-4 mr-2" />
                   Instagram verwalten
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full justify-start border-horror-accent text-horror-accent hover:bg-horror-accent hover:text-black"
-                  onClick={() => window.location.href = "/dashboard/stats"}
+                  onClick={() => (window.location.href = "/dashboard/stats")}
                 >
                   <BarChart3 className="w-4 h-4 mr-2" />
                   Statistiken anzeigen
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full justify-start border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white"
-                  onClick={() => window.location.href = "/dashboard/settings"}
+                  onClick={() => (window.location.href = "/dashboard/settings")}
                 >
                   <Settings className="w-4 h-4 mr-2" />
                   Einstellungen öffnen
@@ -427,19 +457,27 @@ export default function DashboardContent() {
               </CardHeader>
               <CardContent>
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-white">{stats.instagram_stats.total_posts}</p>
-                  <p className="text-sm text-gray-400 mt-1">Gesamt veröffentlicht</p>
+                  <p className="text-3xl font-bold text-white">
+                    {stats.instagram_stats.total_posts}
+                  </p>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Gesamt veröffentlicht
+                  </p>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="bg-horror-surface border-horror-border">
               <CardHeader className="pb-3">
-                <CardTitle className="text-white text-lg">Wartende Genehmigungen</CardTitle>
+                <CardTitle className="text-white text-lg">
+                  Wartende Genehmigungen
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-yellow-400">{stats.instagram_stats.pending_approvals}</p>
+                  <p className="text-3xl font-bold text-yellow-400">
+                    {stats.instagram_stats.pending_approvals}
+                  </p>
                   <p className="text-sm text-gray-400 mt-1">Benötigen Aktion</p>
                 </div>
               </CardContent>
@@ -447,11 +485,15 @@ export default function DashboardContent() {
 
             <Card className="bg-horror-surface border-horror-border">
               <CardHeader className="pb-3">
-                <CardTitle className="text-white text-lg">Automatisierungen</CardTitle>
+                <CardTitle className="text-white text-lg">
+                  Automatisierungen
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-green-400">{stats.instagram_stats.active_automations}</p>
+                  <p className="text-3xl font-bold text-green-400">
+                    {stats.instagram_stats.active_automations}
+                  </p>
                   <p className="text-sm text-gray-400 mt-1">Aktiv laufend</p>
                 </div>
               </CardContent>
@@ -460,27 +502,38 @@ export default function DashboardContent() {
 
           <Card className="bg-horror-surface border-horror-border">
             <CardHeader>
-              <CardTitle className="text-white">Instagram Performance</CardTitle>
+              <CardTitle className="text-white">
+                Instagram Performance
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div>
                   <div className="flex justify-between text-sm mb-2">
                     <span className="text-gray-400">Engagement Rate</span>
-                    <span className="text-white">{stats.instagram_stats.avg_engagement.toFixed(1)}%</span>
+                    <span className="text-white">
+                      {stats.instagram_stats.avg_engagement.toFixed(1)}%
+                    </span>
                   </div>
-                  <Progress value={stats.instagram_stats.avg_engagement * 10} className="h-2" />
+                  <Progress
+                    value={stats.instagram_stats.avg_engagement * 10}
+                    className="h-2"
+                  />
                 </div>
                 <div>
                   <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-400">Follower Wachstum (30d)</span>
+                    <span className="text-gray-400">
+                      Follower Wachstum (30d)
+                    </span>
                     <span className="text-green-400">+2.3%</span>
                   </div>
                   <Progress value={23} className="h-2" />
                 </div>
                 <div>
                   <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-400">Content Genehmigungsrate</span>
+                    <span className="text-gray-400">
+                      Content Genehmigungsrate
+                    </span>
                     <span className="text-white">87%</span>
                   </div>
                   <Progress value={87} className="h-2" />
@@ -502,12 +555,17 @@ export default function DashboardContent() {
             <CardContent>
               <div className="space-y-4">
                 {stats.recent_activities.map((activity) => (
-                  <div key={activity.id} className="flex items-start gap-3 p-3 bg-horror-bg/50 rounded-lg">
+                  <div
+                    key={activity.id}
+                    className="flex items-start gap-3 p-3 bg-horror-bg/50 rounded-lg"
+                  >
                     <div className="mt-0.5">
                       {getActivityIcon(activity.activity_type)}
                     </div>
                     <div className="flex-1">
-                      <p className="text-white text-sm">{activity.description}</p>
+                      <p className="text-white text-sm">
+                        {activity.description}
+                      </p>
                       <div className="flex items-center gap-3 mt-1">
                         <span className="text-xs text-gray-400">
                           {formatDate(activity.timestamp)}
@@ -515,9 +573,11 @@ export default function DashboardContent() {
                         <span className="text-xs text-gray-500">
                           {getTimeAgo(activity.timestamp)}
                         </span>
-                        <Badge 
-                          variant="secondary" 
-                          className={`text-xs ${getStatusColor(activity.status)} bg-transparent border`}
+                        <Badge
+                          variant="secondary"
+                          className={`text-xs ${getStatusColor(
+                            activity.status
+                          )} bg-transparent border`}
                         >
                           {activity.status}
                         </Badge>
@@ -525,7 +585,7 @@ export default function DashboardContent() {
                     </div>
                   </div>
                 ))}
-                
+
                 {stats.recent_activities.length === 0 && (
                   <div className="text-center py-8">
                     <Activity className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -556,11 +616,15 @@ export default function DashboardContent() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Uptime</span>
-                  <span className="text-white">{stats.system_status.uptime}</span>
+                  <span className="text-white">
+                    {stats.system_status.uptime}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Queue</span>
-                  <span className="text-white">{stats.system_status.automation_queue} Jobs</span>
+                  <span className="text-white">
+                    {stats.system_status.automation_queue} Jobs
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-400">Letztes Backup</span>

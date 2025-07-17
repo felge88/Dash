@@ -22,9 +22,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 
 interface ContentApproval {
@@ -50,7 +62,8 @@ export default function ContentApprovalDashboard() {
   const [selectedAccount, setSelectedAccount] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [rejectionReason, setRejectionReason] = useState("");
-  const [selectedApproval, setSelectedApproval] = useState<ContentApproval | null>(null);
+  const [selectedApproval, setSelectedApproval] =
+    useState<ContentApproval | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -62,15 +75,18 @@ export default function ContentApprovalDashboard() {
       setLoading(true);
       const token = localStorage.getItem("token");
       const params = new URLSearchParams();
-      
+
       if (selectedStatus !== "all") params.append("status", selectedStatus);
       if (selectedAccount) params.append("account_id", selectedAccount);
 
-      const response = await fetch(`/api/instagram/content/approvals?${params}`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `/api/instagram/content/approvals?${params}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -94,14 +110,17 @@ export default function ContentApprovalDashboard() {
     }
   };
 
-  const handleApproval = async (approvalId: number, action: "approve" | "reject") => {
+  const handleApproval = async (
+    approvalId: number,
+    action: "approve" | "reject"
+  ) => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch("/api/instagram/content/approvals", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           approval_id: approvalId,
@@ -113,7 +132,9 @@ export default function ContentApprovalDashboard() {
       if (response.ok) {
         toast({
           title: "Erfolg",
-          description: `Content erfolgreich ${action === "approve" ? "genehmigt" : "abgelehnt"}`,
+          description: `Content erfolgreich ${
+            action === "approve" ? "genehmigt" : "abgelehnt"
+          }`,
         });
         loadApprovals();
         setRejectionReason("");
@@ -138,30 +159,44 @@ export default function ContentApprovalDashboard() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "pending": return <Clock className="w-4 h-4 text-yellow-400" />;
-      case "approved": return <CheckCircle className="w-4 h-4 text-green-400" />;
-      case "rejected": return <XCircle className="w-4 h-4 text-red-400" />;
-      case "posted": return <Instagram className="w-4 h-4 text-blue-400" />;
-      default: return <AlertCircle className="w-4 h-4 text-gray-400" />;
+      case "pending":
+        return <Clock className="w-4 h-4 text-yellow-400" />;
+      case "approved":
+        return <CheckCircle className="w-4 h-4 text-green-400" />;
+      case "rejected":
+        return <XCircle className="w-4 h-4 text-red-400" />;
+      case "posted":
+        return <Instagram className="w-4 h-4 text-blue-400" />;
+      default:
+        return <AlertCircle className="w-4 h-4 text-gray-400" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "pending": return "bg-yellow-400/20 text-yellow-400 border-yellow-400/50";
-      case "approved": return "bg-green-400/20 text-green-400 border-green-400/50";
-      case "rejected": return "bg-red-400/20 text-red-400 border-red-400/50";
-      case "posted": return "bg-blue-400/20 text-blue-400 border-blue-400/50";
-      default: return "bg-gray-400/20 text-gray-400 border-gray-400/50";
+      case "pending":
+        return "bg-yellow-400/20 text-yellow-400 border-yellow-400/50";
+      case "approved":
+        return "bg-green-400/20 text-green-400 border-green-400/50";
+      case "rejected":
+        return "bg-red-400/20 text-red-400 border-red-400/50";
+      case "posted":
+        return "bg-blue-400/20 text-blue-400 border-blue-400/50";
+      default:
+        return "bg-gray-400/20 text-gray-400 border-gray-400/50";
     }
   };
 
   const getContentTypeIcon = (type: string) => {
     switch (type) {
-      case "post": return <Image className="w-4 h-4" />;
-      case "story": return <MessageSquare className="w-4 h-4" />;
-      case "reel": return <Video className="w-4 h-4" />;
-      default: return <MessageSquare className="w-4 h-4" />;
+      case "post":
+        return <Image className="w-4 h-4" />;
+      case "story":
+        return <MessageSquare className="w-4 h-4" />;
+      case "reel":
+        return <Video className="w-4 h-4" />;
+      default:
+        return <MessageSquare className="w-4 h-4" />;
     }
   };
 
@@ -189,7 +224,10 @@ export default function ContentApprovalDashboard() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h1 className="text-4xl font-bold text-white mb-2 glitch-text" data-text="CONTENT GENEHMIGUNG">
+        <h1
+          className="text-4xl font-bold text-white mb-2 glitch-text"
+          data-text="CONTENT GENEHMIGUNG"
+        >
           CONTENT GENEHMIGUNG
         </h1>
         <p className="text-gray-400 text-lg">
@@ -216,7 +254,10 @@ export default function ContentApprovalDashboard() {
               </Select>
             </div>
             <div className="flex-1">
-              <Select value={selectedAccount} onValueChange={setSelectedAccount}>
+              <Select
+                value={selectedAccount}
+                onValueChange={setSelectedAccount}
+              >
                 <SelectTrigger className="bg-horror-bg border-horror-border text-white">
                   <SelectValue placeholder="Alle Accounts" />
                 </SelectTrigger>
@@ -241,10 +282,26 @@ export default function ContentApprovalDashboard() {
       {/* Statistics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Wartend", count: approvals.filter(a => a.status === "pending").length, color: "text-yellow-400" },
-          { label: "Genehmigt", count: approvals.filter(a => a.status === "approved").length, color: "text-green-400" },
-          { label: "Abgelehnt", count: approvals.filter(a => a.status === "rejected").length, color: "text-red-400" },
-          { label: "Veröffentlicht", count: approvals.filter(a => a.status === "posted").length, color: "text-blue-400" },
+          {
+            label: "Wartend",
+            count: approvals.filter((a) => a.status === "pending").length,
+            color: "text-yellow-400",
+          },
+          {
+            label: "Genehmigt",
+            count: approvals.filter((a) => a.status === "approved").length,
+            color: "text-green-400",
+          },
+          {
+            label: "Abgelehnt",
+            count: approvals.filter((a) => a.status === "rejected").length,
+            color: "text-red-400",
+          },
+          {
+            label: "Veröffentlicht",
+            count: approvals.filter((a) => a.status === "posted").length,
+            color: "text-blue-400",
+          },
         ].map((stat, index) => (
           <Card key={index} className="bg-horror-surface border-horror-border">
             <CardContent className="p-4 text-center">
@@ -273,13 +330,21 @@ export default function ContentApprovalDashboard() {
                       {/* Header */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <Badge className={`${getStatusColor(approval.status)} border`}>
+                          <Badge
+                            className={`${getStatusColor(
+                              approval.status
+                            )} border`}
+                          >
                             {getStatusIcon(approval.status)}
-                            <span className="ml-1 capitalize">{approval.status}</span>
+                            <span className="ml-1 capitalize">
+                              {approval.status}
+                            </span>
                           </Badge>
                           <div className="flex items-center gap-2 text-sm text-gray-400">
                             {getContentTypeIcon(approval.content_type)}
-                            <span className="capitalize">{approval.content_type}</span>
+                            <span className="capitalize">
+                              {approval.content_type}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2 text-sm text-gray-400">
                             <User className="w-4 h-4" />
@@ -293,12 +358,18 @@ export default function ContentApprovalDashboard() {
 
                       {/* Content */}
                       <div className="space-y-2">
-                        <p className="text-white leading-relaxed">{approval.content_text}</p>
-                        
+                        <p className="text-white leading-relaxed">
+                          {approval.content_text}
+                        </p>
+
                         {approval.hashtags.length > 0 && (
                           <div className="flex flex-wrap gap-1">
                             {approval.hashtags.map((hashtag, index) => (
-                              <Badge key={index} variant="secondary" className="bg-horror-accent/20 text-horror-accent text-xs">
+                              <Badge
+                                key={index}
+                                variant="secondary"
+                                className="bg-horror-accent/20 text-horror-accent text-xs"
+                              >
                                 #{hashtag}
                               </Badge>
                             ))}
@@ -308,7 +379,9 @@ export default function ContentApprovalDashboard() {
                         {approval.scheduled_time && (
                           <div className="flex items-center gap-2 text-sm text-gray-400">
                             <Calendar className="w-4 h-4" />
-                            <span>Geplant für: {formatDate(approval.scheduled_time)}</span>
+                            <span>
+                              Geplant für: {formatDate(approval.scheduled_time)}
+                            </span>
                           </div>
                         )}
                       </div>
@@ -317,8 +390,12 @@ export default function ContentApprovalDashboard() {
                       {(approval.image_url || approval.video_url) && (
                         <div className="bg-horror-bg/50 rounded-lg p-3">
                           <div className="flex items-center gap-2 text-sm text-gray-400 mb-2">
-                            {approval.image_url && <Image className="w-4 h-4" />}
-                            {approval.video_url && <Video className="w-4 h-4" />}
+                            {approval.image_url && (
+                              <Image className="w-4 h-4" />
+                            )}
+                            {approval.video_url && (
+                              <Video className="w-4 h-4" />
+                            )}
                             <span>Media angehängt</span>
                           </div>
                           {approval.image_url && (
@@ -330,15 +407,18 @@ export default function ContentApprovalDashboard() {
                       )}
 
                       {/* Rejection Reason */}
-                      {approval.status === "rejected" && approval.rejection_reason && (
-                        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
-                          <div className="flex items-center gap-2 text-red-400 text-sm font-medium mb-1">
-                            <XCircle className="w-4 h-4" />
-                            Ablehnungsgrund:
+                      {approval.status === "rejected" &&
+                        approval.rejection_reason && (
+                          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+                            <div className="flex items-center gap-2 text-red-400 text-sm font-medium mb-1">
+                              <XCircle className="w-4 h-4" />
+                              Ablehnungsgrund:
+                            </div>
+                            <p className="text-red-300 text-sm">
+                              {approval.rejection_reason}
+                            </p>
                           </div>
-                          <p className="text-red-300 text-sm">{approval.rejection_reason}</p>
-                        </div>
-                      )}
+                        )}
                     </div>
 
                     {/* Actions */}
@@ -352,7 +432,7 @@ export default function ContentApprovalDashboard() {
                           <CheckCircle className="w-4 h-4 mr-1" />
                           Genehmigen
                         </Button>
-                        
+
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button
@@ -366,7 +446,9 @@ export default function ContentApprovalDashboard() {
                           </DialogTrigger>
                           <DialogContent className="bg-horror-surface border-horror-border">
                             <DialogHeader>
-                              <DialogTitle className="text-white">Content ablehnen</DialogTitle>
+                              <DialogTitle className="text-white">
+                                Content ablehnen
+                              </DialogTitle>
                             </DialogHeader>
                             <div className="space-y-4">
                               <div>
@@ -375,19 +457,30 @@ export default function ContentApprovalDashboard() {
                                 </label>
                                 <Textarea
                                   value={rejectionReason}
-                                  onChange={(e) => setRejectionReason(e.target.value)}
+                                  onChange={(e) =>
+                                    setRejectionReason(e.target.value)
+                                  }
                                   className="bg-horror-bg border-horror-border text-white"
                                   placeholder="Bitte geben Sie einen Grund für die Ablehnung an..."
                                   rows={4}
                                 />
                               </div>
                               <div className="flex gap-3 justify-end">
-                                <Button variant="outline" onClick={() => setSelectedApproval(null)}>
+                                <Button
+                                  variant="outline"
+                                  onClick={() => setSelectedApproval(null)}
+                                >
                                   Abbrechen
                                 </Button>
                                 <Button
                                   variant="destructive"
-                                  onClick={() => selectedApproval && handleApproval(selectedApproval.id, "reject")}
+                                  onClick={() =>
+                                    selectedApproval &&
+                                    handleApproval(
+                                      selectedApproval.id,
+                                      "reject"
+                                    )
+                                  }
                                   disabled={!rejectionReason.trim()}
                                 >
                                   Content ablehnen
@@ -409,12 +502,13 @@ export default function ContentApprovalDashboard() {
           <Card className="bg-horror-surface border-horror-border">
             <CardContent className="text-center py-12">
               <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-400">Keine Content-Genehmigungen gefunden</p>
+              <p className="text-gray-400">
+                Keine Content-Genehmigungen gefunden
+              </p>
               <p className="text-sm text-gray-500 mt-2">
-                {selectedStatus === "pending" 
+                {selectedStatus === "pending"
                   ? "Alle generierten Inhalte wurden bereits verarbeitet"
-                  : `Keine Inhalte mit Status "${selectedStatus}" gefunden`
-                }
+                  : `Keine Inhalte mit Status "${selectedStatus}" gefunden`}
               </p>
             </CardContent>
           </Card>

@@ -59,9 +59,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       approvals: formattedApprovals,
-      count: formattedApprovals.length
+      count: formattedApprovals.length,
     });
-
   } catch (error) {
     console.error("Error fetching content approvals:", error);
     return NextResponse.json(
@@ -86,55 +85,63 @@ export async function POST(request: NextRequest) {
       hashtags = [],
       image_url,
       video_url,
-      scheduled_time
+      scheduled_time,
     } = body;
 
     // Verify account ownership
-    const account = await database.all(`
+    const account = await database.all(
+      `
       SELECT id, username 
       FROM instagram_accounts 
       WHERE id = ? AND user_id = ? AND status = 'connected'
-    `, [account_id, user.id]);
+    `,
+      [account_id, user.id]
+    );
 
     if (account.length === 0) {
       return NextResponse.json({ error: "Account not found" }, { status: 404 });
     }
 
     // Create content approval
-    const result = await database.run(`
+    const result = await database.run(
+      `
       INSERT INTO content_approvals (
         account_id, content_type, content_text, hashtags, 
         image_url, video_url, scheduled_time, status, created_at
       )
       VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)
-    `, [
-      account_id,
-      content_type,
-      content_text,
-      JSON.stringify(hashtags),
-      image_url || null,
-      video_url || null,
-      scheduled_time || null,
-      new Date().toISOString()
-    ]);
+    `,
+      [
+        account_id,
+        content_type,
+        content_text,
+        JSON.stringify(hashtags),
+        image_url || null,
+        video_url || null,
+        scheduled_time || null,
+        new Date().toISOString(),
+      ]
+    );
 
     // Log activity
-    await database.run(`
+    await database.run(
+      `
       INSERT INTO user_activities (user_id, activity_type, description, timestamp)
       VALUES (?, ?, ?, ?)
-    `, [
-      user.id,
-      "content_approval_created",
-      `Created content approval for account: ${account[0].username}`,
-      new Date().toISOString()
-    ]);
+    `,
+      [
+        user.id,
+        "content_approval_created",
+        `Created content approval for account: ${account[0].username}`,
+        new Date().toISOString(),
+      ]
+    );
 
     return NextResponse.json({
       id: result.lastID,
       message: "Content approval created successfully",
-      status: "pending"
+      status: "pending",
     });
-
   } catch (error) {
     console.error("Error creating content approval:", error);
     return NextResponse.json(
@@ -159,48 +166,65 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Verify approval exists and user has access
-    const approval = await database.all(`
+    const approval = await database.all(
+      `
       SELECT ca.*, ia.username as account_username
       FROM content_approvals ca
       JOIN instagram_accounts ia ON ca.account_id = ia.id
       WHERE ca.id = ? AND ia.user_id = ?
-    `, [approval_id, user.id]);
+    `,
+      [approval_id, user.id]
+    );
 
     if (approval.length === 0) {
-      return NextResponse.json({ error: "Approval not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Approval not found" },
+        { status: 404 }
+      );
     }
 
     const currentApproval = approval[0];
     if (currentApproval.status !== "pending") {
-      return NextResponse.json({ 
-        error: "Approval has already been processed" 
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "Approval has already been processed",
+        },
+        { status: 400 }
+      );
     }
 
     // Update approval status
     const newStatus = action === "approve" ? "approved" : "rejected";
-    await database.run(`
+    await database.run(
+      `
       UPDATE content_approvals 
       SET status = ?, approved_at = ?, approved_by = ?, rejection_reason = ?
       WHERE id = ?
-    `, [
-      newStatus,
-      new Date().toISOString(),
-      user.id,
-      action === "reject" ? rejection_reason : null,
-      approval_id
-    ]);
+    `,
+      [
+        newStatus,
+        new Date().toISOString(),
+        user.id,
+        action === "reject" ? rejection_reason : null,
+        approval_id,
+      ]
+    );
 
     // Log activity
-    await database.run(`
+    await database.run(
+      `
       INSERT INTO user_activities (user_id, activity_type, description, timestamp)
       VALUES (?, ?, ?, ?)
-    `, [
-      user.id,
-      `content_approval_${action}d`,
-      `${action === "approve" ? "Approved" : "Rejected"} content for account: ${currentApproval.account_username}`,
-      new Date().toISOString()
-    ]);
+    `,
+      [
+        user.id,
+        `content_approval_${action}d`,
+        `${
+          action === "approve" ? "Approved" : "Rejected"
+        } content for account: ${currentApproval.account_username}`,
+        new Date().toISOString(),
+      ]
+    );
 
     // If approved, schedule for posting (in a real implementation)
     if (action === "approve") {
@@ -208,16 +232,15 @@ export async function PATCH(request: NextRequest) {
       console.log(`Content approved for posting:`, {
         approval_id,
         account: currentApproval.account_username,
-        content: currentApproval.content_text
+        content: currentApproval.content_text,
       });
     }
 
     return NextResponse.json({
       message: `Content ${action}d successfully`,
       status: newStatus,
-      approval_id
+      approval_id,
     });
-
   } catch (error) {
     console.error("Error processing content approval:", error);
     return NextResponse.json(
