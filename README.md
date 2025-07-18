@@ -4,48 +4,48 @@
 
 ### **Endgültiger Installationspfad:**
 
-```
+\`\`\`
 /home/deploy/blaster/
-```
+\`\`\`
 
 ### **PM2 Start-Befehl:**
 
-```bash
+\`\`\`bash
 cd /home/deploy/blaster
 pm2 start ecosystem.config.js --env production
-```
+\`\`\`
 
 ## 🔧 Schnell-Installation
 
 ### **Ein-Zeilen-Installation:**
 
-```bash
+\`\`\`bash
 curl -fsSL https://raw.githubusercontent.com/felge88/Dash/Blaster/root-install.sh | sudo bash
-```
+\`\`\`
 
 ### **Manuelle Installation:**
 
-```bash
+\`\`\`bash
 git clone https://github.com/felge88/Dash.git
 cd Dash && git checkout Blaster
 chmod +x root-install.sh
 sudo ./root-install.sh
-```
+\`\`\`
 
 ## ✅ Verifikation
 
 ### **System-Check:**
 
-```bash
+\`\`\`bash
 # Als deploy user
 su - deploy
 cd /home/deploy/blaster
 ./validate-setup.sh
-```
+\`\`\`
 
 ### **Anwendungs-Check:**
 
-````bash
+\`\`\``bash
 # PM2 Status
 pm2 status
 pm2 logs
@@ -57,7 +57,7 @@ curl -I http://localhost:3000
 # Database Test
 sqlite3 database.sqlite ".tables"
 # Expected: users, modules, activities, etc.
-```rd
+\`\`\`rd
 
 Eine moderne, private Automatisierungs-Plattform für 3-4 Benutzer mit Horror-Theme Design.
 
@@ -148,4 +148,4 @@ npm run build
 ## Lizenz
 
 Private Nutzung - Alle Rechte vorbehalten
-````
+\`\`\``

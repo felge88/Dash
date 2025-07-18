@@ -25,9 +25,9 @@ Diese Anleitung führt dich durch die **komplette Installation** des Dash Automa
 
 ### 🚀 1-Befehl Installation (als root)
 
-```bash
+\`\`\`bash
 curl -fsSL https://raw.githubusercontent.com/felge88/Dash/Blaster/root-install.sh | sudo bash
-```
+\`\`\`
 
 ### 🎯 Was passiert automatisch:
 
@@ -52,41 +52,41 @@ curl -fsSL https://raw.githubusercontent.com/felge88/Dash/Blaster/root-install.s
 
 ### SCHRITT 1: System vorbereiten
 
-```bash
+\`\`\`bash
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y curl wget git build-essential software-properties-common
-```
+\`\`\`
 
 ### SCHRITT 2: Node.js 20 LTS installieren
 
-```bash
+\`\`\`bash
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
 sudo npm install -g pm2
-```
+\`\`\`
 
 ### SCHRITT 3: Nginx installieren
 
-```bash
+\`\`\`bash
 sudo apt install -y nginx
 sudo systemctl start nginx
 sudo systemctl enable nginx
-```
+\`\`\`
 
 ### SCHRITT 4: Projekt klonen
 
-```bash
+\`\`\`bash
 sudo mkdir -p /var/www
 cd /var/www
 sudo git clone https://github.com/felge88/Dash.git dash-automation
 cd dash-automation
 sudo git checkout Blaster
 sudo chown -R $USER:$USER /var/www/dash-automation
-```
+\`\`\`
 
 ### STEP 3: Dependencies KORREKT installieren
 
-```bash
+\`\`\`bash
 # WICHTIG: Korrigierte package.json verwenden
 cp package-fixed.json package.json
 cp next.config-fixed.js next.config.js
@@ -95,34 +95,34 @@ cp next.config-fixed.js next.config.js
 rm -rf node_modules package-lock.json
 npm cache clean --force
 npm install
-```
+\`\`\`
 
 ### STEP 4: Environment & Database
 
-```bash
+\`\`\`bash
 cp .env.production .env.local
 mkdir -p data
 node scripts/init-db.js
-```
+\`\`\`
 
 ### STEP 5: Build & Deploy
 
-```bash
+\`\`\`bash
 npm run build
 npm install -g pm2
 pm2 start ecosystem.config.js
 pm2 save
 pm2 startup
-```
+\`\`\`
 
 ### STEP 6: Nginx Configuration
 
-```bash
+\`\`\`bash
 sudo cp nginx.conf /etc/nginx/sites-available/dash-automation
 sudo ln -sf /etc/nginx/sites-available/dash-automation /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default
 sudo nginx -t && sudo systemctl restart nginx
-```
+\`\`\`
 
 ---
 
@@ -139,34 +139,34 @@ sudo nginx -t && sudo systemctl restart nginx
 
 ### Problem: "Cannot find module"
 
-```bash
+\`\`\`bash
 cd /var/www/dash-automation
 npm install @radix-ui/react-avatar@^1.0.4 @radix-ui/react-progress@^1.0.3 @radix-ui/react-tabs@^1.0.4
 pm2 restart dash-automation
-```
+\`\`\`
 
 ### Problem: "Multer version not found"
 
-```bash
+\`\`\`bash
 npm install multer@1.4.4 @types/multer@^1.4.11
 pm2 restart dash-automation
-```
+\`\`\`
 
 ### Problem: "App directory not found"
 
-```bash
+\`\`\`bash
 ls -la app/
 # Falls leer: git checkout HEAD -- app/
 pm2 restart dash-automation
-```
+\`\`\`
 
 ### Problem: Port bereits verwendet
 
-```bash
+\`\`\`bash
 sudo lsof -i :3000
 sudo kill -9 <PID>
 pm2 restart dash-automation
-```
+\`\`\`
 
 ---
 

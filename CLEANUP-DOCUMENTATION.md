@@ -16,24 +16,24 @@ Dieses Dokument beschreibt den kompletten Cleanup-Prozess für das Dash Automati
 
 ### Phase 1: Schnelle Validierung
 
-```bash
+\`\`\`bash
 # Aktuellen Status prüfen
 ./validate-backend.sh
-```
+\`\`\`
 
 ### Phase 2: Komplettes Cleanup
 
-```bash
+\`\`\`bash
 # Alle Bereinigungen durchführen
 ./cleanup-project.sh
-```
+\`\`\`
 
 ### Phase 3: Manuelle Nachprüfung
 
-```bash
+\`\`\`bash
 # Finale Validierung
 ./validate-backend.sh
-```
+\`\`\`
 
 ## 📁 Entfernte Dateien
 
@@ -48,14 +48,14 @@ Dieses Dokument beschreibt den kompletten Cleanup-Prozess für das Dash Automati
 
 ### Auth Module (lib/auth.ts)
 
-```typescript
+\`\`\`typescript
 // Moderne Funktionen
 export const authenticateUser = async (request: NextRequest): Promise<User | null>
 export const loginUser = async (username: string, password: string)
 export const verifyToken = (token: string): JWTPayload | null
 export const hashPassword = async (password: string): Promise<string>
 export const generateToken = (user: User): string
-```
+\`\`\`
 
 ### API Routes Cleanup
 
@@ -187,12 +187,12 @@ export const generateToken = (user: User): string
 
 ### Notfall-Rollback:
 
-```bash
+\`\`\`bash
 git stash
 git checkout main
 npm install
 pm2 restart dash-automation
-```
+\`\`\`
 
 ---
 

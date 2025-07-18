@@ -1,74 +1,97 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Camera, User, Lock, Shield, Bell, Monitor } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useToast } from "@/hooks/use-toast";
+import type React from "react"
+
+import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
+import { Camera, User, Lock, Shield, Bell, Monitor, Palette } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Switch } from "@/components/ui/switch" // Import Switch
+import { useToast } from "@/hooks/use-toast"
 
 interface UserProfile {
-  id: number;
-  username: string;
-  name: string;
-  email: string;
-  profile_image: string;
-  is_admin: boolean;
+  id: number
+  username: string
+  name: string
+  email: string
+  profile_image: string
+  is_admin: boolean
+  settings: {
+    notifications?: boolean
+    sound_effects?: boolean
+    auto_start_modules?: boolean
+    dark_mode?: boolean
+  }
 }
 
 export default function SettingsPage() {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const { toast } = useToast();
+  const [user, setUser] = useState<UserProfile | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const { toast } = useToast()
 
   // Profile form state
   const [profileForm, setProfileForm] = useState({
     name: "",
     email: "",
-  });
+  })
 
   // Password form state
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-  });
+  })
+
+  // System settings state
+  const [systemSettings, setSystemSettings] = useState({
+    notifications: true,
+    sound_effects: true,
+    auto_start_modules: false,
+    dark_mode: true,
+  })
 
   useEffect(() => {
-    loadUserProfile();
-  }, []);
+    loadUserProfile()
+  }, [])
 
   const loadUserProfile = async () => {
     try {
-      const response = await fetch("/api/profile");
+      const response = await fetch("/api/profile")
       if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
+        const data = await response.json()
+        setUser(data.user)
         setProfileForm({
           name: data.user.name || "",
           email: data.user.email || "",
-        });
+        })
+        setSystemSettings({
+          notifications: data.user.settings?.notifications ?? true,
+          sound_effects: data.user.settings?.sound_effects ?? true,
+          auto_start_modules: data.user.settings?.auto_start_modules ?? false,
+          dark_mode: data.user.settings?.dark_mode ?? true,
+        })
       }
     } catch (error) {
-      console.error("Error loading profile:", error);
+      console.error("Error loading profile:", error)
       toast({
         title: "Fehler",
         description: "Profil konnte nicht geladen werden",
         variant: "destructive",
-      });
+      })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleProfileUpdate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
+    e.preventDefault()
+    setSaving(true)
 
     try {
       const response = await fetch("/api/profile", {
@@ -77,45 +100,45 @@ export default function SettingsPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(profileForm),
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (response.ok) {
-        setUser(data.user);
+        setUser(data.user)
         toast({
           title: "Erfolg",
           description: "Profil erfolgreich aktualisiert",
-        });
+        })
       } else {
         toast({
           title: "Fehler",
           description: data.error || "Profil konnte nicht aktualisiert werden",
           variant: "destructive",
-        });
+        })
       }
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error("Error updating profile:", error)
       toast({
         title: "Fehler",
         description: "Netzwerkfehler beim Aktualisieren des Profils",
         variant: "destructive",
-      });
+      })
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const handlePasswordChange = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       toast({
         title: "Fehler",
         description: "Neue Passwörter stimmen nicht überein",
         variant: "destructive",
-      });
-      return;
+      })
+      return
     }
 
     if (passwordForm.newPassword.length < 6) {
@@ -123,11 +146,11 @@ export default function SettingsPage() {
         title: "Fehler",
         description: "Neues Passwort muss mindestens 6 Zeichen lang sein",
         variant: "destructive",
-      });
-      return;
+      })
+      return
     }
 
-    setSaving(true);
+    setSaving(true)
 
     try {
       const response = await fetch("/api/profile/password", {
@@ -139,85 +162,156 @@ export default function SettingsPage() {
           currentPassword: passwordForm.currentPassword,
           newPassword: passwordForm.newPassword,
         }),
-      });
+      })
 
-      const data = await response.json();
+      const data = await response.json()
 
       if (response.ok) {
         setPasswordForm({
           currentPassword: "",
           newPassword: "",
           confirmPassword: "",
-        });
+        })
         toast({
           title: "Erfolg",
           description: "Passwort erfolgreich geändert",
-        });
+        })
       } else {
         toast({
           title: "Fehler",
           description: data.error || "Passwort konnte nicht geändert werden",
           variant: "destructive",
-        });
+        })
       }
     } catch (error) {
-      console.error("Error changing password:", error);
+      console.error("Error changing password:", error)
       toast({
         title: "Fehler",
         description: "Netzwerkfehler beim Ändern des Passworts",
         variant: "destructive",
-      });
+      })
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
+
+  const handleSystemSettingChange = async (settingName: keyof typeof systemSettings, checked: boolean) => {
+    const updatedSettings = { ...systemSettings, [settingName]: checked }
+    setSystemSettings(updatedSettings)
+    setSaving(true)
+
+    try {
+      const response = await fetch("/api/settings", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedSettings),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        toast({
+          title: "Erfolg",
+          description: "Einstellungen erfolgreich aktualisiert",
+        })
+      } else {
+        toast({
+          title: "Fehler",
+          description: data.error || "Einstellungen konnten nicht gespeichert werden",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error updating settings:", error)
+      toast({
+        title: "Fehler",
+        description: "Netzwerkfehler beim Speichern der Einstellungen",
+        variant: "destructive",
+      })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const settingsGroups = [
+    {
+      title: "Benachrichtigungen",
+      icon: Bell,
+      settings: [
+        {
+          label: "Push-Benachrichtigungen",
+          description: "Erhalte Benachrichtigungen über Modul-Aktivitäten",
+          checked: systemSettings.notifications,
+          onChange: (checked: boolean) => handleSystemSettingChange("notifications", checked),
+        },
+        {
+          label: "Sound-Effekte",
+          description: "Spiele Sounds bei wichtigen Ereignissen ab",
+          checked: systemSettings.sound_effects,
+          onChange: (checked: boolean) => handleSystemSettingChange("sound_effects", checked),
+        },
+      ],
+    },
+    {
+      title: "Automatisierung",
+      icon: Monitor,
+      settings: [
+        {
+          label: "Auto-Start Module",
+          description: "Starte Module automatisch beim Login",
+          checked: systemSettings.auto_start_modules,
+          onChange: (checked: boolean) => handleSystemSettingChange("auto_start_modules", checked),
+        },
+      ],
+    },
+    {
+      title: "Erscheinungsbild",
+      icon: Palette, // Assuming Palette is available or replaced with a suitable icon
+      settings: [
+        {
+          label: "Dark Mode",
+          description: "Verwende das dunkle Design-Theme",
+          checked: systemSettings.dark_mode,
+          onChange: (checked: boolean) => handleSystemSettingChange("dark_mode", checked),
+        },
+      ],
+    },
+  ]
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="text-white">Lade Einstellungen...</div>
+        <div className="text-primary">Lade Einstellungen...</div>
       </div>
-    );
+    )
   }
 
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="text-red-400">Benutzer nicht gefunden</div>
+        <div className="text-destructive">Benutzer nicht gefunden</div>
       </div>
-    );
+    )
   }
 
   return (
     <div className="space-y-8">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <h1
-          className="text-4xl font-bold text-white mb-2 glitch-text"
-          data-text="EINSTELLUNGEN"
-        >
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+        <h1 className="text-4xl font-bold text-primary mb-2 glitch-text" data-text="EINSTELLUNGEN">
           EINSTELLUNGEN
         </h1>
-        <p className="text-gray-400 text-lg">
-          Profil verwalten und Anwendungseinstellungen konfigurieren
-        </p>
+        <p className="text-muted-foreground text-lg">Profil verwalten und Anwendungseinstellungen konfigurieren</p>
       </motion.div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 bg-horror-surface border-horror-border">
-          <TabsTrigger
-            value="profile"
-            className="data-[state=active]:bg-horror-accent data-[state=active]:text-black"
-          >
+        <TabsList className="grid w-full grid-cols-2 bg-card border-border">
+          <TabsTrigger value="profile" className="data-[state=active]:bg-primary data-[state=active]:text-background">
             <User className="w-4 h-4 mr-2" />
             Profil
           </TabsTrigger>
-          <TabsTrigger
-            value="system"
-            className="data-[state=active]:bg-horror-accent data-[state=active]:text-black"
-          >
+          <TabsTrigger value="system" className="data-[state=active]:bg-primary data-[state=active]:text-background">
             <Monitor className="w-4 h-4 mr-2" />
             System
           </TabsTrigger>
@@ -225,14 +319,11 @@ export default function SettingsPage() {
 
         {/* Profile Tab */}
         <TabsContent value="profile" className="space-y-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <Card className="bg-horror-surface border-horror-border">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <User className="w-5 h-5 text-horror-accent" />
+                <CardTitle className="text-primary flex items-center gap-2">
+                  <User className="w-5 h-5" />
                   Profil-Informationen
                 </CardTitle>
               </CardHeader>
@@ -240,22 +331,20 @@ export default function SettingsPage() {
                 {/* Profile Image */}
                 <div className="flex items-center gap-4">
                   <Avatar className="w-20 h-20">
-                    <AvatarImage src={user.profile_image} alt={user.username} />
-                    <AvatarFallback className="bg-horror-accent text-black text-xl font-bold">
+                    <AvatarImage src={user.profile_image || "/placeholder.svg"} alt={user.username} />
+                    <AvatarFallback className="bg-primary text-background text-xl font-bold">
                       {user.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="space-y-2">
-                    <p className="text-white font-medium">@{user.username}</p>
+                    <p className="text-foreground font-medium">@{user.username}</p>
                     {user.is_admin && (
-                      <span className="text-xs bg-horror-accent/20 text-horror-accent px-2 py-1 rounded-full">
-                        ADMIN
-                      </span>
+                      <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">ADMIN</span>
                     )}
                     <Button
                       variant="outline"
                       size="sm"
-                      className="border-horror-border text-gray-300"
+                      className="border-border text-muted-foreground hover:bg-background/50 bg-transparent"
                     >
                       <Camera className="w-4 h-4 mr-2" />
                       Bild ändern
@@ -267,7 +356,7 @@ export default function SettingsPage() {
                 <form onSubmit={handleProfileUpdate} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name" className="text-white">
+                      <Label htmlFor="name" className="text-foreground">
                         Name
                       </Label>
                       <Input
@@ -280,13 +369,13 @@ export default function SettingsPage() {
                             name: e.target.value,
                           })
                         }
-                        className="bg-horror-bg border-horror-border text-white"
+                        className="bg-input border-border text-foreground"
                         placeholder="Ihr vollständiger Name"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-white">
+                      <Label htmlFor="email" className="text-foreground">
                         E-Mail-Adresse
                       </Label>
                       <Input
@@ -299,17 +388,13 @@ export default function SettingsPage() {
                             email: e.target.value,
                           })
                         }
-                        className="bg-horror-bg border-horror-border text-white"
+                        className="bg-input border-border text-foreground"
                         placeholder="ihre@email.com"
                       />
                     </div>
                   </div>
 
-                  <Button
-                    type="submit"
-                    disabled={saving}
-                    className="bg-horror-accent hover:bg-horror-accent/80 text-black"
-                  >
+                  <Button type="submit" disabled={saving} className="bg-primary hover:bg-primary/80 text-background">
                     {saving ? "Speichert..." : "Profil aktualisieren"}
                   </Button>
                 </form>
@@ -318,22 +403,18 @@ export default function SettingsPage() {
           </motion.div>
 
           {/* Password Change */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
-            <Card className="bg-horror-surface border-horror-border">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Lock className="w-5 h-5 text-horror-accent" />
+                <CardTitle className="text-primary flex items-center gap-2">
+                  <Lock className="w-5 h-5" />
                   Passwort ändern
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handlePasswordChange} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="currentPassword" className="text-white">
+                    <Label htmlFor="currentPassword" className="text-foreground">
                       Aktuelles Passwort
                     </Label>
                     <Input
@@ -346,14 +427,14 @@ export default function SettingsPage() {
                           currentPassword: e.target.value,
                         })
                       }
-                      className="bg-horror-bg border-horror-border text-white"
+                      className="bg-input border-border text-foreground"
                       required
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="newPassword" className="text-white">
+                      <Label htmlFor="newPassword" className="text-foreground">
                         Neues Passwort
                       </Label>
                       <Input
@@ -366,14 +447,14 @@ export default function SettingsPage() {
                             newPassword: e.target.value,
                           })
                         }
-                        className="bg-horror-bg border-horror-border text-white"
+                        className="bg-input border-border text-foreground"
                         required
                         minLength={6}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword" className="text-white">
+                      <Label htmlFor="confirmPassword" className="text-foreground">
                         Passwort bestätigen
                       </Label>
                       <Input
@@ -386,17 +467,13 @@ export default function SettingsPage() {
                             confirmPassword: e.target.value,
                           })
                         }
-                        className="bg-horror-bg border-horror-border text-white"
+                        className="bg-input border-border text-foreground"
                         required
                       />
                     </div>
                   </div>
 
-                  <Button
-                    type="submit"
-                    disabled={saving}
-                    className="bg-horror-accent hover:bg-horror-accent/80 text-black"
-                  >
+                  <Button type="submit" disabled={saving} className="bg-primary hover:bg-primary/80 text-background">
                     {saving ? "Ändert..." : "Passwort ändern"}
                   </Button>
                 </form>
@@ -407,38 +484,73 @@ export default function SettingsPage() {
 
         {/* System Tab */}
         <TabsContent value="system" className="space-y-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <Card className="bg-horror-surface border-horror-border">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-horror-accent" />
+                <CardTitle className="text-primary flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
+                  System-Einstellungen
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {settingsGroups.map((group, groupIndex) => (
+                  <div key={group.title} className="space-y-4">
+                    <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                      <group.icon className="w-5 h-5 text-primary" />
+                      {group.title}
+                    </h3>
+                    <div className="space-y-3">
+                      {group.settings.map((setting, settingIndex) => (
+                        <div
+                          key={setting.label}
+                          className="flex items-center justify-between p-4 bg-background rounded-lg border border-border/50"
+                        >
+                          <div className="space-y-1">
+                            <Label className="text-foreground font-medium">{setting.label}</Label>
+                            <p className="text-sm text-muted-foreground">{setting.description}</p>
+                          </div>
+                          <Switch
+                            checked={setting.checked}
+                            onCheckedChange={setting.onChange}
+                            className="data-[state=checked]:bg-primary"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* System Info */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <Card className="bg-card border-border">
+              <CardHeader>
+                <CardTitle className="text-primary flex items-center gap-2">
+                  <Shield className="w-5 h-5" />
                   System-Informationen
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <p className="text-sm text-gray-400">Version</p>
-                    <p className="text-white font-mono">v2.0.0</p>
+                    <p className="text-sm text-muted-foreground">Version</p>
+                    <p className="text-foreground font-mono">v2.0.0</p>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm text-gray-400">Letztes Update</p>
-                    <p className="text-white font-mono">
-                      {new Date().toLocaleDateString("de-DE")}
-                    </p>
+                    <p className="text-sm text-muted-foreground">Letztes Update</p>
+                    <p className="text-foreground font-mono">{new Date().toLocaleDateString("de-DE")}</p>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm text-gray-400">Benutzer-ID</p>
-                    <p className="text-white font-mono">#{user.id}</p>
+                    <p className="text-sm text-muted-foreground">Benutzer-ID</p>
+                    <p className="text-foreground font-mono">#{user.id}</p>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm text-gray-400">Status</p>
+                    <p className="text-sm text-muted-foreground">Status</p>
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-horror-accent rounded-full animate-pulse" />
-                      <p className="text-horror-accent font-medium">Online</p>
+                      <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                      <p className="text-primary font-medium">Online</p>
                     </div>
                   </div>
                 </div>
@@ -448,5 +560,5 @@ export default function SettingsPage() {
         </TabsContent>
       </Tabs>
     </div>
-  );
+  )
 }

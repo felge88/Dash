@@ -41,27 +41,27 @@ Diese Anleitung zeigt dir, wie du dich mit **VS Code** über **SSH** zu deinem U
 
 **Windows:**
 
-```bash
+\`\`\`bash
 # Ordner erstellen falls nicht vorhanden
 mkdir C:\Users\%USERNAME%\.ssh
 
 # Config-Datei erstellen
 notepad C:\Users\%USERNAME%\.ssh\config
-```
+\`\`\`
 
 **Linux/Mac:**
 
-```bash
+\`\`\`bash
 # Ordner erstellen falls nicht vorhanden
 mkdir -p ~/.ssh
 
 # Config-Datei erstellen
 nano ~/.ssh/config
-```
+\`\`\`
 
 ### 2.2 SSH-Konfiguration hinzufügen
 
-```bash
+\`\`\`bash
 # Dash Automation Server
 Host dash-server
     HostName YOUR_SERVER_IP
@@ -78,15 +78,15 @@ Host dash-server-pw
     Port 22
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
-```
+\`\`\`
 
 **Wichtig:** Ersetze `YOUR_SERVER_IP` durch deine echte Server-IP!
 
 ### Terminal öffnen:
 
-```
+\`\`\`
 Ctrl+` (Backtick) → Neues Terminal
-```
+\`\`\`
 
 ---
 
@@ -94,7 +94,7 @@ Ctrl+` (Backtick) → Neues Terminal
 
 ### Im SSH-Terminal ausführen:
 
-```bash
+\`\`\`bash
 # 1. Setup-Script herunterladen
 wget -O setup-server.sh https://raw.githubusercontent.com/felge88/Dash/Blaster/setup-server.sh
 chmod +x setup-server.sh
@@ -104,7 +104,7 @@ sudo ./setup-server.sh
 
 # 3. WARTEN bis Script fertig ist (ca. 5-10 Minuten)
 # Falls Reboot erforderlich → Server startet neu
-```
+\`\`\`
 
 ---
 
@@ -112,7 +112,7 @@ sudo ./setup-server.sh
 
 ### Wieder mit SSH verbinden und fortfahren:
 
-```bash
+\`\`\`bash
 # 1. Zum Projekt-Verzeichnis
 cd /opt/automation-dashboard
 
@@ -127,29 +127,29 @@ cp .env.example .env
 
 # 5. .env bearbeiten (KRITISCH!)
 nano .env
-```
+\`\`\`
 
 ### 📝 In nano ändern:
 
-```env
+\`\`\`env
 JWT_SECRET=IhrSuperGeheimesJWTSchlüsselMindestens32ZeichenLang123456789
 NODE_ENV=production
 CORS_ORIGIN=http://194.164.62.92
 DATABASE_URL=./data/database.sqlite
 PORT=3000
-```
+\`\`\`
 
 ### Speichern in nano:
 
-```
+\`\`\`
 Ctrl+X → Y → Enter
-```
+\`\`\`
 
 ---
 
 ## 🐳 SCHRITT 4: Docker starten
 
-```bash
+\`\`\`bash
 # 1. Notwendige Ordner erstellen
 mkdir -p data uploads logs
 mkdir -p uploads/{profiles,instagram,youtube}
@@ -165,7 +165,7 @@ docker-compose logs -f
 
 # 5. Health Check
 curl http://localhost:3000/api/health
-```
+\`\`\`
 
 ---
 
@@ -188,38 +188,38 @@ curl http://localhost:3000/api/health
 
 ### Docker läuft nicht:
 
-```bash
+\`\`\`bash
 sudo systemctl restart docker
 docker-compose down
 docker-compose up -d
-```
+\`\`\`
 
 ### Port nicht erreichbar:
 
-```bash
+\`\`\`bash
 sudo ufw allow 3000/tcp
 sudo netstat -tulpn | grep :3000
-```
+\`\`\`
 
 ### Logs prüfen:
 
-```bash
+\`\`\`bash
 docker-compose logs automation-dashboard
 sudo tail -f /var/log/nginx/error.log
-```
+\`\`\`
 
 ### Nginx neu starten:
 
-```bash
+\`\`\`bash
 sudo systemctl restart nginx
 sudo nginx -t
-```
+\`\`\`
 
 ---
 
 ## 🎯 SCHNELL-COMMANDS (Alles auf einmal)
 
-```bash
+\`\`\`bash
 # Komplett-Installation in einem Durchgang:
 wget -O setup-server.sh https://raw.githubusercontent.com/felge88/Dash/Blaster/setup-server.sh && \
 chmod +x setup-server.sh && \
@@ -229,7 +229,7 @@ git clone https://github.com/felge88/Dash.git . && \
 cp .env.example .env && \
 echo "🔧 Jetzt .env bearbeiten: nano .env" && \
 echo "🚀 Dann starten: docker-compose up -d"
-```
+\`\`\`
 
 **⚠️ WICHTIG:** Nach dem Schnell-Command noch `.env` bearbeiten und `docker-compose up -d` ausführen!
 
@@ -239,20 +239,20 @@ echo "🚀 Dann starten: docker-compose up -d"
 
 ### System-Status:
 
-```bash
+\`\`\`bash
 htop                    # System Resources
 df -h                   # Disk Usage
 free -h                 # Memory Usage
 docker stats            # Container Stats
 sudo ufw status         # Firewall Status
-```
+\`\`\`
 
 ### Service-Status:
 
-```bash
+\`\`\`bash
 sudo systemctl status docker
 sudo systemctl status nginx
 docker-compose ps
-```
+\`\`\`
 
 **🎉 Nach erfolgreicher Installation ist dein Dashboard unter http://194.164.62.92 erreichbar!**

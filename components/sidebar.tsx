@@ -1,28 +1,18 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
-import {
-  Home,
-  Bot,
-  Shield,
-  BarChart3,
-  User,
-  Settings,
-  LogOut,
-  Menu,
-  X,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { motion } from "framer-motion"
+import { Home, Bot, Shield, BarChart3, Settings, LogOut, Menu, X } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 interface SidebarProps {
   user: {
-    username: string;
-    is_admin: boolean;
-  };
+    username: string
+    is_admin: boolean
+  }
 }
 
 const menuItems = [
@@ -30,82 +20,61 @@ const menuItems = [
   { icon: Bot, label: "Module", href: "/dashboard/modules" },
   { icon: BarChart3, label: "Statistiken", href: "/dashboard/stats" },
   { icon: Settings, label: "Einstellungen", href: "/dashboard/settings" },
-];
+]
 
-const adminItems = [{ icon: Shield, label: "Admin", href: "/dashboard/admin" }];
+const adminItems = [{ icon: Shield, label: "Admin", href: "/dashboard/admin" }]
 
 export default function Sidebar({ user }: SidebarProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const pathname = usePathname();
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const pathname = usePathname()
 
-  const allItems = user.is_admin ? [...menuItems, ...adminItems] : menuItems;
+  const allItems = user.is_admin ? [...menuItems, ...adminItems] : menuItems
 
   // Update main content margin when sidebar changes
-  const updateMainContentMargin = (collapsed: boolean) => {
-    const mainContent = document.getElementById("main-content");
-    const dashboardLayout = document.getElementById("dashboard-layout");
-
+  useEffect(() => {
+    const mainContent = document.getElementById("main-content")
     if (mainContent) {
-      mainContent.style.marginLeft = collapsed ? "64px" : "256px";
+      mainContent.style.marginLeft = isCollapsed ? "64px" : "256px"
     }
-
-    if (dashboardLayout) {
-      dashboardLayout.className = collapsed
-        ? dashboardLayout.className.replace(
-            "sidebar-expanded",
-            "sidebar-collapsed"
-          )
-        : dashboardLayout.className.replace(
-            "sidebar-collapsed",
-            "sidebar-expanded"
-          );
-    }
-  };
+  }, [isCollapsed])
 
   const toggleSidebar = () => {
-    const newCollapsedState = !isCollapsed;
-    setIsCollapsed(newCollapsedState);
-    updateMainContentMargin(newCollapsedState);
-  };
+    setIsCollapsed(!isCollapsed)
+  }
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
-      window.location.href = "/login";
+      await fetch("/api/auth/logout", { method: "POST" })
+      window.location.href = "/login"
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error("Logout error:", error)
     }
-  };
+  }
 
   return (
     <motion.div
       initial={{ x: -300 }}
       animate={{ x: 0 }}
       className={cn(
-        "fixed left-0 top-0 h-full bg-horror-surface border-r border-horror-border z-50 transition-all duration-300",
-        isCollapsed ? "w-16" : "w-64"
+        "fixed left-0 top-0 h-full bg-card border-r border-border z-50 transition-all duration-300",
+        isCollapsed ? "w-16" : "w-64",
       )}
     >
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="p-4 border-b border-horror-border">
+        <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between">
             {!isCollapsed && (
               <motion.h1
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-xl font-bold text-horror-accent glitch-text"
+                className="text-xl font-bold text-primary glitch-text"
                 data-text="AUTOMATION"
               >
                 AUTOMATION
               </motion.h1>
             )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSidebar}
-              className="text-horror-accent hover:bg-horror-accent/10"
-            >
+            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="text-primary hover:bg-primary/10">
               {isCollapsed ? <Menu size={20} /> : <X size={20} />}
             </Button>
           </div>
@@ -115,7 +84,7 @@ export default function Sidebar({ user }: SidebarProps) {
         <nav className="flex-1 p-4">
           <ul className="space-y-2">
             {allItems.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = pathname === item.href
               return (
                 <li key={item.href}>
                   <Link href={item.href}>
@@ -125,32 +94,28 @@ export default function Sidebar({ user }: SidebarProps) {
                       className={cn(
                         "flex items-center gap-3 p-3 rounded-lg transition-all duration-300",
                         isActive
-                          ? "bg-horror-accent/20 text-horror-accent horror-border"
-                          : "text-gray-400 hover:text-horror-accent hover:bg-horror-accent/10"
+                          ? "bg-primary/20 text-primary star-border"
+                          : "text-muted-foreground hover:text-primary hover:bg-primary/10",
                       )}
                     >
                       <item.icon size={20} />
-                      {!isCollapsed && (
-                        <span className="font-medium">{item.label}</span>
-                      )}
+                      {!isCollapsed && <span className="font-medium">{item.label}</span>}
                     </motion.div>
                   </Link>
                 </li>
-              );
+              )
             })}
           </ul>
         </nav>
 
         {/* User Info & Logout */}
-        <div className="p-4 border-t border-horror-border">
+        <div className="p-4 border-t border-border">
           {!isCollapsed && (
             <div className="mb-4">
-              <p className="text-sm text-gray-400">Angemeldet als</p>
-              <p className="font-medium text-horror-accent">{user.username}</p>
+              <p className="text-sm text-muted-foreground">Angemeldet als</p>
+              <p className="font-medium text-destructive">{user.username}</p>
               {user.is_admin && (
-                <span className="text-xs bg-horror-accent/20 text-horror-accent px-2 py-1 rounded-full">
-                  ADMIN
-                </span>
+                <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">ADMIN</span>
               )}
             </div>
           )}
@@ -158,8 +123,8 @@ export default function Sidebar({ user }: SidebarProps) {
             onClick={handleLogout}
             variant="ghost"
             className={cn(
-              "w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-400/10",
-              isCollapsed && "justify-center"
+              "w-full justify-start text-destructive hover:text-destructive/80 hover:bg-destructive/10",
+              isCollapsed && "justify-center",
             )}
           >
             <LogOut size={20} />
@@ -168,5 +133,5 @@ export default function Sidebar({ user }: SidebarProps) {
         </div>
       </div>
     </motion.div>
-  );
+  )
 }

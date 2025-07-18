@@ -19,37 +19,37 @@
 
 ### 1. **Frischer Ubuntu 22.04 Server**
 
-```bash
+\`\`\`bash
 # Als root einloggen
-```
+\`\`\`
 
 ### 2. **Repository klonen**
 
-```bash
+\`\`\`bash
 git clone https://github.com/felge88/Dash.git
 cd Dash
 git checkout Blaster
-```
+\`\`\`
 
 ### 3. **Root-Installation ausführen**
 
-```bash
+\`\`\`bash
 chmod +x root-install.sh
 ./root-install.sh
-```
+\`\`\`
 
 ### 4. **Installation validieren**
 
-```bash
+\`\`\`bash
 # Als deploy user
 su - deploy
 cd /home/deploy/blaster
 ./validate-setup.sh
-```
+\`\`\`
 
 ### 5. **Anwendung starten**
 
-```bash
+\`\`\`bash
 # PM2 aus dem Projektordner starten
 cd /home/deploy/blaster
 pm2 start ecosystem.config.js --env production
@@ -59,19 +59,19 @@ pm2 startup
 # Status prüfen
 pm2 status
 pm2 logs
-```
+\`\`\`
 
 ## 🔧 **Produktionsoptimierungen**
 
 ### **Log-Rotation einrichten:**
 
-```bash
+\`\`\`bash
 # PM2 Log-Rotation installieren
 pm2 install pm2-logrotate
 pm2 set pm2-logrotate:max_size 10M
 pm2 set pm2-logrotate:retain 30
 pm2 set pm2-logrotate:compress true
-```
+\`\`\`
 
 ### **SQLite Performance:**
 
@@ -88,7 +88,7 @@ pm2 set pm2-logrotate:compress true
 
 ## 📋 Projekt-Struktur:
 
-```
+\`\`\`
 /home/deploy/blaster/           # Hauptprojekt
 ├── database.sqlite             # SQLite Datenbank (root-level)
 ├── ecosystem.config.js         # PM2 Konfiguration
@@ -98,7 +98,7 @@ pm2 set pm2-logrotate:compress true
 ├── lib/database.ts            # Datenbank-Wrapper
 ├── scripts/init-db.js         # Datenbank-Initialisierung
 └── /var/log/pm2/             # PM2 Logs
-```
+\`\`\`
 
 ## 🔧 Wichtige Konfigurationen:
 
@@ -131,32 +131,32 @@ pm2 set pm2-logrotate:compress true
 
 ### **Installation fehlgeschlagen**
 
-```bash
+\`\`\`bash
 # Logs prüfen
 tail -f /var/log/dash-installation.log
 
 # Validierung ausführen
 ./validate-setup.sh
-```
+\`\`\`
 
 ### **PM2 Probleme**
 
-```bash
+\`\`\`bash
 # PM2 neu starten
 pm2 restart all
 pm2 save
 
 # Logs prüfen
 pm2 logs
-```
+\`\`\`
 
 ### **Datenbank Probleme**
 
-```bash
+\`\`\`bash
 # Datenbank neu initialisieren
 rm -f database.sqlite
 npm run db:init
-```
+\`\`\`
 
 ## 🎉 Fertig!
 
