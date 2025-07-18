@@ -17,6 +17,15 @@ pm2 start ecosystem.config.js --env production
 
 ## 🔧 Schnell-Installation
 
+### **Voraussetzungen:**
+
+```bash
+# Ubuntu 22.04 Server mit Root-Zugang
+# Für SQLite3 native compilation benötigt:
+sudo apt update
+sudo apt install -y build-essential python3 python3-pip g++ make
+```
+
 ### **Ein-Zeilen-Installation:**
 
 \`\`\`bash

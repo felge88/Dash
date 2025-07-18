@@ -265,6 +265,11 @@ npm cache clean --force
 echo "📦 Installing dependencies..."
 npm install --legacy-peer-deps
 
+# Create logs directory for PM2
+echo "📁 Creating logs directory..."
+mkdir -p logs
+chmod 755 logs
+
 # 9. VALIDATE BUILD
 echo "🔧 STEP 9: Validating build..."
 
@@ -282,8 +287,8 @@ else
     sed -i 's/"start": "next start"/"start": "next dev"/g' package.json
 fi
 
-# NOTE: Dependencies will be installed by deployment script
-# No need for double npm install in production deployment
+# NOTE: Dependencies already installed - no double npm install needed
+# PM2 logs directory created and ready
 
 # 10. FINAL PROJECT STATUS
 echo "📊 PROJECT STATUS AFTER CLEANUP:"

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import database from "@/lib/database";
+import db from "@/lib/database-simple";
 
 export async function GET() {
   try {
@@ -13,7 +13,7 @@ export async function GET() {
 
     // Database health check
     try {
-      await database.get("SELECT 1 as test");
+      await db.query("SELECT 1 as test");
       checks.database = "healthy";
     } catch (error) {
       checks.database = "unhealthy";

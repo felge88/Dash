@@ -116,6 +116,12 @@ chown -R $DEPLOY_USER:$DEPLOY_USER $PROJECT_DIR
     chown -R $DEPLOY_USER:$DEPLOY_USER /var/log/pm2
     chmod 755 /var/log/pm2
 
+    # Create local logs directory for PM2
+    log "📁 Creating local logs directory..."
+    mkdir -p $PROJECT_DIR/logs
+    chown -R $DEPLOY_USER:$DEPLOY_USER $PROJECT_DIR/logs
+    chmod 755 $PROJECT_DIR/logs
+
     # Create backup directory
     log "📁 Creating backup directory..."
     mkdir -p $PROJECT_DIR/backups
