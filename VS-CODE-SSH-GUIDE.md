@@ -1,23 +1,86 @@
-# 🚀 STEP-BY-STEP: VS Code SSH + Automatische Installation
+# � VS CODE SSH GUIDE
 
-## 📋 VORBEREITUNG
-
-1. **VS Code öffnen**
-2. **Remote-SSH Extension** installiert haben
-3. **SSH-Verbindung zu 194.164.62.92** eingerichtet
+## Verbindung zu deinem Ubuntu Server mit VS Code
 
 ---
 
-## 🔗 SCHRITT 1: Mit Server verbinden
+## 📋 ÜBERSICHT
 
-### In VS Code:
+Diese Anleitung zeigt dir, wie du dich mit **VS Code** über **SSH** zu deinem Ubuntu 22.04 Server verbindest und direkt auf dem Server entwickelst.
 
+## 🎯 VORAUSSETZUNGEN
+
+- ✅ **VS Code** installiert
+- ✅ **Ubuntu 22.04 Server** mit SSH-Zugang
+- ✅ **SSH-Schlüssel** oder Passwort-Zugang
+- ✅ **Internet-Verbindung**
+
+---
+
+## � SCHRITT 1: VS CODE ERWEITERUNG INSTALLIEREN
+
+### 1.1 Remote-SSH Extension installieren
+
+1. **VS Code** öffnen
+2. **Extensions** (Strg+Shift+X) öffnen
+3. Nach **"Remote - SSH"** suchen
+4. **"Remote - SSH"** von Microsoft installieren
+5. **VS Code** neu starten
+
+### 1.2 Zusätzliche hilfreiche Extensions
+
+- **"Remote - SSH: Editing Configuration Files"**
+- **"Remote Explorer"**
+- **"Remote Development"** (Extension Pack)
+
+---
+
+## � SCHRITT 2: SSH-KONFIGURATION
+
+### 2.1 SSH Config-Datei erstellen
+
+**Windows:**
+
+```bash
+# Ordner erstellen falls nicht vorhanden
+mkdir C:\Users\%USERNAME%\.ssh
+
+# Config-Datei erstellen
+notepad C:\Users\%USERNAME%\.ssh\config
 ```
-Ctrl+Shift+P → "Remote-SSH: Connect to Host"
-→ 194.164.62.92 auswählen
-→ Linux auswählen
-→ Passwort eingeben
+
+**Linux/Mac:**
+
+```bash
+# Ordner erstellen falls nicht vorhanden
+mkdir -p ~/.ssh
+
+# Config-Datei erstellen
+nano ~/.ssh/config
 ```
+
+### 2.2 SSH-Konfiguration hinzufügen
+
+```bash
+# Dash Automation Server
+Host dash-server
+    HostName YOUR_SERVER_IP
+    User root
+    Port 22
+    IdentityFile ~/.ssh/id_rsa
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+
+# Alternative mit Passwort-Login
+Host dash-server-pw
+    HostName YOUR_SERVER_IP
+    User root
+    Port 22
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+```
+
+**Wichtig:** Ersetze `YOUR_SERVER_IP` durch deine echte Server-IP!
 
 ### Terminal öffnen:
 

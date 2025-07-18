@@ -1,31 +1,72 @@
-# 🚀 ENDGÜLTIGE DASH-INSTALLATION
+# 🚀 ENDGÜLTIGE SERVER-INSTALLATION
 
-## ⚡ 1-BEFEHL INSTALLATION
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/felge88/Dash/Blaster/deploy-server.sh | bash
-```
-
-**Das war's! Nach 5-10 Minuten ist die Anwendung unter http://194.164.62.92 erreichbar.**
+## Komplette Anleitung für Ubuntu 22.04 Server
 
 ---
 
-## 🔧 Bei Problemen: Manuelle Schritte
+## 📋 ÜBERSICHT
 
-### STEP 1: System vorbereiten
+Diese Anleitung führt dich durch die **komplette Installation** des Dash Automation Projekts auf einem frischen Ubuntu 22.04 Server mit allen erforderlichen Komponenten.
+
+## 🎯 WAS WIRD INSTALLIERT
+
+- ✅ **Node.js 20 LTS** (Neueste stabile Version)
+- ✅ **PM2** (Process Manager für Node.js)
+- ✅ **Nginx** (Reverse Proxy & SSL)
+- ✅ **SQLite** (Datenbank)
+- ✅ **Git** (Version Control)
+- ✅ **Dash Automation** (Complete Project)
+- ✅ **SSL Certificate** (Let's Encrypt)
+- ✅ **Firewall** (UFW Security)
+
+---
+
+## ⚡ SCHNELL-INSTALLATION (EMPFOHLEN)
+
+### 🚀 1-Befehl Installation
 
 ```bash
-sudo apt update && sudo apt install -y curl wget git nodejs npm nginx sqlite3
+curl -fsSL https://raw.githubusercontent.com/felge88/Dash/Blaster/auto-install-server.sh | bash
 ```
 
-### STEP 2: Projekt setup
+**Das war's! Nach 5-10 Minuten ist die Anwendung bereit.**
+
+---
+
+## 🔧 MANUELLE INSTALLATION (SCHRITT-FÜR-SCHRITT)
+
+### SCHRITT 1: System vorbereiten
 
 ```bash
-sudo mkdir -p /var/www/dash-automation
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y curl wget git build-essential software-properties-common
+```
+
+### SCHRITT 2: Node.js 20 LTS installieren
+
+```bash
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+sudo npm install -g pm2
+```
+
+### SCHRITT 3: Nginx installieren
+
+```bash
+sudo apt install -y nginx
+sudo systemctl start nginx
+sudo systemctl enable nginx
+```
+
+### SCHRITT 4: Projekt klonen
+
+```bash
+sudo mkdir -p /var/www
+cd /var/www
+sudo git clone https://github.com/felge88/Dash.git dash-automation
+cd dash-automation
+sudo git checkout Blaster
 sudo chown -R $USER:$USER /var/www/dash-automation
-cd /var/www/dash-automation
-git clone https://github.com/felge88/Dash.git .
-git checkout Blaster
 ```
 
 ### STEP 3: Dependencies KORREKT installieren
