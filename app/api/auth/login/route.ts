@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { loginUser } from "@/lib/auth-new";
+import { loginUser } from "@/lib/auth";
 import database from "@/lib/database";
 
 interface LoginRequest {
