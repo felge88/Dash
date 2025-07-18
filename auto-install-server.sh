@@ -42,11 +42,37 @@ sudo chmod 666 $LOG_FILE
 log "🚀 DASH AUTOMATION - COMPLETE SERVER INSTALLATION"
 log "================================================="
 
-# Check if running as root
+# Check if running as root - CREATE USER IF NEEDED
 if [[ $EUID -eq 0 ]]; then
-   error "This script should not be run as root"
-   exit 1
+   log "⚠️ Running as root - creating deployment user..."
+   
+   # Create deployment user
+   if ! id "deploy" &>/dev/null; then
+       log "📝 Creating 'deploy' user..."
+       useradd -m -s /bin/bash deploy
+       usermod -aG sudo deploy
+       log "✅ User 'deploy' created"
+   else
+       log "✅ User 'deploy' already exists"
+   fi
+   
+   # Set up SSH access for deploy user
+   mkdir -p /home/deploy/.ssh
+   if [ -f /root/.ssh/authorized_keys ]; then
+       cp /root/.ssh/authorized_keys /home/deploy/.ssh/authorized_keys
+       chown -R deploy:deploy /home/deploy/.ssh
+       chmod 700 /home/deploy/.ssh
+       chmod 600 /home/deploy/.ssh/authorized_keys
+       log "✅ SSH keys copied to deploy user"
+   fi
+   
+   # Switch to deploy user and re-run script
+   log "🔄 Switching to deploy user and re-running installation..."
+   exec sudo -u deploy bash -c "curl -fsSL https://raw.githubusercontent.com/felge88/Dash/Blaster/auto-install-server.sh | bash"
 fi
+
+# Now running as non-root user
+log "✅ Running as user: $(whoami)"
 
 # Update system
 log "📦 Updating system packages..."

@@ -23,13 +23,28 @@ Diese Anleitung führt dich durch die **komplette Installation** des Dash Automa
 
 ## ⚡ SCHNELL-INSTALLATION (EMPFOHLEN)
 
-### 🚀 1-Befehl Installation
+### 🚀 1-Befehl Installation (als root)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/felge88/Dash/Blaster/auto-install-server.sh | bash
+curl -fsSL https://raw.githubusercontent.com/felge88/Dash/Blaster/root-install.sh | sudo bash
 ```
 
+### 🎯 Was passiert automatisch:
+
+- ✅ **Deploy-User wird erstellt** (deploy)
+- ✅ **SSH-Keys werden kopiert** (von root zu deploy)
+- ✅ **Alle Komponenten** werden installiert
+- ✅ **Firewall wird konfiguriert**
+- ✅ **Anwendung wird gestartet**
+
 **Das war's! Nach 5-10 Minuten ist die Anwendung bereit.**
+
+### 🔐 Sicherheitshinweise:
+
+- **Deploy-User** hat eingeschränkte Rechte
+- **Root-Zugang** wird nach Installation nicht mehr benötigt
+- **SSH-Keys** funktionieren für beide User (root + deploy)
+- **Firewall** ist aktiviert und konfiguriert
 
 ---
 
