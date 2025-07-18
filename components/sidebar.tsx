@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion } from "framer-motion"
@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils"
 interface SidebarProps {
   user: {
     username: string
+    name?: string
     is_admin: boolean
   }
 }
@@ -30,16 +31,25 @@ export default function Sidebar({ user }: SidebarProps) {
 
   const allItems = user.is_admin ? [...menuItems, ...adminItems] : menuItems
 
-  // Update main content margin when sidebar changes
-  useEffect(() => {
+  const updateMainContentMargin = (collapsed: boolean) => {
     const mainContent = document.getElementById("main-content")
+    const dashboardLayout = document.getElementById("dashboard-layout")
+
     if (mainContent) {
-      mainContent.style.marginLeft = isCollapsed ? "64px" : "256px"
+      mainContent.style.marginLeft = collapsed ? "64px" : "256px"
     }
-  }, [isCollapsed])
+
+    if (dashboardLayout) {
+      dashboardLayout.className = collapsed
+        ? dashboardLayout.className.replace("sidebar-expanded", "sidebar-collapsed")
+        : dashboardLayout.className.replace("sidebar-collapsed", "sidebar-expanded")
+    }
+  }
 
   const toggleSidebar = () => {
-    setIsCollapsed(!isCollapsed)
+    const newCollapsedState = !isCollapsed
+    setIsCollapsed(newCollapsedState)
+    updateMainContentMargin(newCollapsedState)
   }
 
   const handleLogout = async () => {
@@ -57,8 +67,12 @@ export default function Sidebar({ user }: SidebarProps) {
       animate={{ x: 0 }}
       className={cn(
         "fixed left-0 top-0 h-full bg-card border-r border-border z-50 transition-all duration-300",
+        "backdrop-filter backdrop-blur-lg bg-opacity-90",
         isCollapsed ? "w-16" : "w-64",
       )}
+      style={{
+        background: "linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.98) 100%)",
+      }}
     >
       <div className="flex flex-col h-full">
         {/* Header */}
@@ -68,13 +82,18 @@ export default function Sidebar({ user }: SidebarProps) {
               <motion.h1
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-xl font-bold text-primary glitch-text"
-                data-text="AUTOMATION"
+                className="text-xl font-bold text-blue-400 hologram-text"
+                data-text="GALACTIC HUB"
               >
-                AUTOMATION
+                GALACTIC HUB
               </motion.h1>
             )}
-            <Button variant="ghost" size="icon" onClick={toggleSidebar} className="text-primary hover:bg-primary/10">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="text-blue-400 hover:bg-blue-400/10 starwars-border"
+            >
               {isCollapsed ? <Menu size={20} /> : <X size={20} />}
             </Button>
           </div>
@@ -94,8 +113,8 @@ export default function Sidebar({ user }: SidebarProps) {
                       className={cn(
                         "flex items-center gap-3 p-3 rounded-lg transition-all duration-300",
                         isActive
-                          ? "bg-primary/20 text-primary star-border"
-                          : "text-muted-foreground hover:text-primary hover:bg-primary/10",
+                          ? "bg-blue-400/20 text-blue-400 starwars-border starwars-glow"
+                          : "text-gray-400 hover:text-blue-400 hover:bg-blue-400/10",
                       )}
                     >
                       <item.icon size={20} />
@@ -112,10 +131,12 @@ export default function Sidebar({ user }: SidebarProps) {
         <div className="p-4 border-t border-border">
           {!isCollapsed && (
             <div className="mb-4">
-              <p className="text-sm text-muted-foreground">Angemeldet als</p>
-              <p className="font-medium text-destructive">{user.username}</p>
+              <p className="text-sm text-gray-400">Angemeldet als</p>
+              <p className="font-medium text-red-400 text-shadow">{user.name || user.username}</p>
               {user.is_admin && (
-                <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">ADMIN</span>
+                <span className="text-xs bg-blue-400/20 text-blue-400 px-2 py-1 rounded-full border border-blue-400/30">
+                  ADMIRAL
+                </span>
               )}
             </div>
           )}
@@ -123,7 +144,7 @@ export default function Sidebar({ user }: SidebarProps) {
             onClick={handleLogout}
             variant="ghost"
             className={cn(
-              "w-full justify-start text-destructive hover:text-destructive/80 hover:bg-destructive/10",
+              "w-full justify-start text-red-400 hover:text-red-300 hover:bg-red-400/10 sith-border",
               isCollapsed && "justify-center",
             )}
           >

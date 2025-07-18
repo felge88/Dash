@@ -4,14 +4,14 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Camera, User, Lock, Shield, Bell, Monitor, Palette } from "lucide-react"
+import { Camera, User, Lock, Shield, Bell, Monitor, Save } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Switch } from "@/components/ui/switch" // Import Switch
+import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
 
 interface UserProfile {
@@ -21,12 +21,13 @@ interface UserProfile {
   email: string
   profile_image: string
   is_admin: boolean
-  settings: {
-    notifications?: boolean
-    sound_effects?: boolean
-    auto_start_modules?: boolean
-    dark_mode?: boolean
-  }
+}
+
+interface UserSettings {
+  notifications: boolean
+  autoStart: boolean
+  darkMode: boolean
+  soundEffects: boolean
 }
 
 export default function SettingsPage() {
@@ -48,16 +49,17 @@ export default function SettingsPage() {
     confirmPassword: "",
   })
 
-  // System settings state
-  const [systemSettings, setSystemSettings] = useState({
+  // Settings state
+  const [settings, setSettings] = useState<UserSettings>({
     notifications: true,
-    sound_effects: true,
-    auto_start_modules: false,
-    dark_mode: true,
+    autoStart: false,
+    darkMode: true,
+    soundEffects: true,
   })
 
   useEffect(() => {
     loadUserProfile()
+    loadUserSettings()
   }, [])
 
   const loadUserProfile = async () => {
@@ -70,12 +72,6 @@ export default function SettingsPage() {
           name: data.user.name || "",
           email: data.user.email || "",
         })
-        setSystemSettings({
-          notifications: data.user.settings?.notifications ?? true,
-          sound_effects: data.user.settings?.sound_effects ?? true,
-          auto_start_modules: data.user.settings?.auto_start_modules ?? false,
-          dark_mode: data.user.settings?.dark_mode ?? true,
-        })
       }
     } catch (error) {
       console.error("Error loading profile:", error)
@@ -86,6 +82,18 @@ export default function SettingsPage() {
       })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const loadUserSettings = async () => {
+    try {
+      const response = await fetch("/api/settings")
+      if (response.ok) {
+        const data = await response.json()
+        setSettings(data.settings || settings)
+      }
+    } catch (error) {
+      console.error("Error loading settings:", error)
     }
   }
 
@@ -195,9 +203,7 @@ export default function SettingsPage() {
     }
   }
 
-  const handleSystemSettingChange = async (settingName: keyof typeof systemSettings, checked: boolean) => {
-    const updatedSettings = { ...systemSettings, [settingName]: checked }
-    setSystemSettings(updatedSettings)
+  const handleSettingsUpdate = async () => {
     setSaving(true)
 
     try {
@@ -206,20 +212,18 @@ export default function SettingsPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(updatedSettings),
+        body: JSON.stringify(settings),
       })
-
-      const data = await response.json()
 
       if (response.ok) {
         toast({
           title: "Erfolg",
-          description: "Einstellungen erfolgreich aktualisiert",
+          description: "Einstellungen erfolgreich gespeichert",
         })
       } else {
         toast({
           title: "Fehler",
-          description: data.error || "Einstellungen konnten nicht gespeichert werden",
+          description: "Einstellungen konnten nicht gespeichert werden",
           variant: "destructive",
         })
       }
@@ -235,55 +239,10 @@ export default function SettingsPage() {
     }
   }
 
-  const settingsGroups = [
-    {
-      title: "Benachrichtigungen",
-      icon: Bell,
-      settings: [
-        {
-          label: "Push-Benachrichtigungen",
-          description: "Erhalte Benachrichtigungen über Modul-Aktivitäten",
-          checked: systemSettings.notifications,
-          onChange: (checked: boolean) => handleSystemSettingChange("notifications", checked),
-        },
-        {
-          label: "Sound-Effekte",
-          description: "Spiele Sounds bei wichtigen Ereignissen ab",
-          checked: systemSettings.sound_effects,
-          onChange: (checked: boolean) => handleSystemSettingChange("sound_effects", checked),
-        },
-      ],
-    },
-    {
-      title: "Automatisierung",
-      icon: Monitor,
-      settings: [
-        {
-          label: "Auto-Start Module",
-          description: "Starte Module automatisch beim Login",
-          checked: systemSettings.auto_start_modules,
-          onChange: (checked: boolean) => handleSystemSettingChange("auto_start_modules", checked),
-        },
-      ],
-    },
-    {
-      title: "Erscheinungsbild",
-      icon: Palette, // Assuming Palette is available or replaced with a suitable icon
-      settings: [
-        {
-          label: "Dark Mode",
-          description: "Verwende das dunkle Design-Theme",
-          checked: systemSettings.dark_mode,
-          onChange: (checked: boolean) => handleSystemSettingChange("dark_mode", checked),
-        },
-      ],
-    },
-  ]
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="text-primary">Lade Einstellungen...</div>
+        <div className="text-blue-400 hologram-text">Lade Einstellungen...</div>
       </div>
     )
   }
@@ -291,7 +250,7 @@ export default function SettingsPage() {
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-96">
-        <div className="text-destructive">Benutzer nicht gefunden</div>
+        <div className="text-red-400">Benutzer nicht gefunden</div>
       </div>
     )
   }
@@ -299,20 +258,27 @@ export default function SettingsPage() {
   return (
     <div className="space-y-8">
       <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-4xl font-bold text-primary mb-2 glitch-text" data-text="EINSTELLUNGEN">
+        <h1 className="text-4xl font-bold text-blue-400 mb-2 hologram-text" data-text="EINSTELLUNGEN">
           EINSTELLUNGEN
         </h1>
-        <p className="text-muted-foreground text-lg">Profil verwalten und Anwendungseinstellungen konfigurieren</p>
+        <p className="text-gray-400 text-lg">Profil verwalten und Systemkonfiguration</p>
       </motion.div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 bg-card border-border">
-          <TabsTrigger value="profile" className="data-[state=active]:bg-primary data-[state=active]:text-background">
+        <TabsList className="grid w-full grid-cols-3 bg-card border-border">
+          <TabsTrigger value="profile" className="data-[state=active]:bg-blue-400/20 data-[state=active]:text-blue-400">
             <User className="w-4 h-4 mr-2" />
             Profil
           </TabsTrigger>
-          <TabsTrigger value="system" className="data-[state=active]:bg-primary data-[state=active]:text-background">
+          <TabsTrigger
+            value="preferences"
+            className="data-[state=active]:bg-blue-400/20 data-[state=active]:text-blue-400"
+          >
             <Monitor className="w-4 h-4 mr-2" />
+            Präferenzen
+          </TabsTrigger>
+          <TabsTrigger value="system" className="data-[state=active]:bg-blue-400/20 data-[state=active]:text-blue-400">
+            <Shield className="w-4 h-4 mr-2" />
             System
           </TabsTrigger>
         </TabsList>
@@ -320,9 +286,9 @@ export default function SettingsPage() {
         {/* Profile Tab */}
         <TabsContent value="profile" className="space-y-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <Card className="bg-card border-border">
+            <Card className="bg-card border-border starwars-border">
               <CardHeader>
-                <CardTitle className="text-primary flex items-center gap-2">
+                <CardTitle className="text-blue-400 flex items-center gap-2">
                   <User className="w-5 h-5" />
                   Profil-Informationen
                 </CardTitle>
@@ -330,22 +296,20 @@ export default function SettingsPage() {
               <CardContent className="space-y-6">
                 {/* Profile Image */}
                 <div className="flex items-center gap-4">
-                  <Avatar className="w-20 h-20">
+                  <Avatar className="w-20 h-20 starwars-border">
                     <AvatarImage src={user.profile_image || "/placeholder.svg"} alt={user.username} />
-                    <AvatarFallback className="bg-primary text-background text-xl font-bold">
+                    <AvatarFallback className="bg-blue-400/20 text-blue-400 text-xl font-bold">
                       {user.username.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="space-y-2">
-                    <p className="text-foreground font-medium">@{user.username}</p>
+                    <p className="text-white font-medium">@{user.username}</p>
                     {user.is_admin && (
-                      <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full">ADMIN</span>
+                      <span className="text-xs bg-blue-400/20 text-blue-400 px-2 py-1 rounded-full border border-blue-400/30">
+                        ADMIRAL
+                      </span>
                     )}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-border text-muted-foreground hover:bg-background/50 bg-transparent"
-                    >
+                    <Button variant="outline" size="sm" className="starwars-button bg-transparent">
                       <Camera className="w-4 h-4 mr-2" />
                       Bild ändern
                     </Button>
@@ -356,7 +320,7 @@ export default function SettingsPage() {
                 <form onSubmit={handleProfileUpdate} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name" className="text-foreground">
+                      <Label htmlFor="name" className="text-blue-400">
                         Name
                       </Label>
                       <Input
@@ -369,13 +333,13 @@ export default function SettingsPage() {
                             name: e.target.value,
                           })
                         }
-                        className="bg-input border-border text-foreground"
+                        className="bg-background border-border text-white starwars-border"
                         placeholder="Ihr vollständiger Name"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-foreground">
+                      <Label htmlFor="email" className="text-blue-400">
                         E-Mail-Adresse
                       </Label>
                       <Input
@@ -388,13 +352,14 @@ export default function SettingsPage() {
                             email: e.target.value,
                           })
                         }
-                        className="bg-input border-border text-foreground"
+                        className="bg-background border-border text-white starwars-border"
                         placeholder="ihre@email.com"
                       />
                     </div>
                   </div>
 
-                  <Button type="submit" disabled={saving} className="bg-primary hover:bg-primary/80 text-background">
+                  <Button type="submit" disabled={saving} className="starwars-button">
+                    <Save className="w-4 h-4 mr-2" />
                     {saving ? "Speichert..." : "Profil aktualisieren"}
                   </Button>
                 </form>
@@ -404,9 +369,9 @@ export default function SettingsPage() {
 
           {/* Password Change */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card className="bg-card border-border">
+            <Card className="bg-card border-border starwars-border">
               <CardHeader>
-                <CardTitle className="text-primary flex items-center gap-2">
+                <CardTitle className="text-blue-400 flex items-center gap-2">
                   <Lock className="w-5 h-5" />
                   Passwort ändern
                 </CardTitle>
@@ -414,7 +379,7 @@ export default function SettingsPage() {
               <CardContent>
                 <form onSubmit={handlePasswordChange} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="currentPassword" className="text-foreground">
+                    <Label htmlFor="currentPassword" className="text-blue-400">
                       Aktuelles Passwort
                     </Label>
                     <Input
@@ -427,14 +392,14 @@ export default function SettingsPage() {
                           currentPassword: e.target.value,
                         })
                       }
-                      className="bg-input border-border text-foreground"
+                      className="bg-background border-border text-white starwars-border"
                       required
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="newPassword" className="text-foreground">
+                      <Label htmlFor="newPassword" className="text-blue-400">
                         Neues Passwort
                       </Label>
                       <Input
@@ -447,14 +412,14 @@ export default function SettingsPage() {
                             newPassword: e.target.value,
                           })
                         }
-                        className="bg-input border-border text-foreground"
+                        className="bg-background border-border text-white starwars-border"
                         required
                         minLength={6}
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword" className="text-foreground">
+                      <Label htmlFor="confirmPassword" className="text-blue-400">
                         Passwort bestätigen
                       </Label>
                       <Input
@@ -467,13 +432,14 @@ export default function SettingsPage() {
                             confirmPassword: e.target.value,
                           })
                         }
-                        className="bg-input border-border text-foreground"
+                        className="bg-background border-border text-white starwars-border"
                         required
                       />
                     </div>
                   </div>
 
-                  <Button type="submit" disabled={saving} className="bg-primary hover:bg-primary/80 text-background">
+                  <Button type="submit" disabled={saving} className="starwars-button">
+                    <Lock className="w-4 h-4 mr-2" />
                     {saving ? "Ändert..." : "Passwort ändern"}
                   </Button>
                 </form>
@@ -482,52 +448,68 @@ export default function SettingsPage() {
           </motion.div>
         </TabsContent>
 
-        {/* System Tab */}
-        <TabsContent value="system" className="space-y-6">
+        {/* Preferences Tab */}
+        <TabsContent value="preferences" className="space-y-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <Card className="bg-card border-border">
+            <Card className="bg-card border-border starwars-border">
               <CardHeader>
-                <CardTitle className="text-primary flex items-center gap-2">
-                  <Shield className="w-5 h-5" />
-                  System-Einstellungen
+                <CardTitle className="text-blue-400 flex items-center gap-2">
+                  <Bell className="w-5 h-5" />
+                  Benutzereinstellungen
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {settingsGroups.map((group, groupIndex) => (
-                  <div key={group.title} className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                      <group.icon className="w-5 h-5 text-primary" />
-                      {group.title}
-                    </h3>
-                    <div className="space-y-3">
-                      {group.settings.map((setting, settingIndex) => (
-                        <div
-                          key={setting.label}
-                          className="flex items-center justify-between p-4 bg-background rounded-lg border border-border/50"
-                        >
-                          <div className="space-y-1">
-                            <Label className="text-foreground font-medium">{setting.label}</Label>
-                            <p className="text-sm text-muted-foreground">{setting.description}</p>
-                          </div>
-                          <Switch
-                            checked={setting.checked}
-                            onCheckedChange={setting.onChange}
-                            className="data-[state=checked]:bg-primary"
-                          />
-                        </div>
-                      ))}
-                    </div>
+                <div className="flex items-center justify-between p-4 bg-background/50 rounded-lg starwars-border">
+                  <div>
+                    <Label className="text-white font-medium">Push-Benachrichtigungen</Label>
+                    <p className="text-sm text-gray-400">Erhalte Benachrichtigungen über Modul-Aktivitäten</p>
                   </div>
-                ))}
+                  <Switch
+                    checked={settings.notifications}
+                    onCheckedChange={(checked) => setSettings({ ...settings, notifications: checked })}
+                    className="data-[state=checked]:bg-blue-400"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-background/50 rounded-lg starwars-border">
+                  <div>
+                    <Label className="text-white font-medium">Auto-Start Module</Label>
+                    <p className="text-sm text-gray-400">Starte Module automatisch beim Login</p>
+                  </div>
+                  <Switch
+                    checked={settings.autoStart}
+                    onCheckedChange={(checked) => setSettings({ ...settings, autoStart: checked })}
+                    className="data-[state=checked]:bg-blue-400"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-background/50 rounded-lg starwars-border">
+                  <div>
+                    <Label className="text-white font-medium">Sound-Effekte</Label>
+                    <p className="text-sm text-gray-400">Spiele Sounds bei wichtigen Ereignissen ab</p>
+                  </div>
+                  <Switch
+                    checked={settings.soundEffects}
+                    onCheckedChange={(checked) => setSettings({ ...settings, soundEffects: checked })}
+                    className="data-[state=checked]:bg-blue-400"
+                  />
+                </div>
+
+                <Button onClick={handleSettingsUpdate} disabled={saving} className="w-full starwars-button">
+                  <Save className="w-4 h-4 mr-2" />
+                  {saving ? "Speichert..." : "Einstellungen speichern"}
+                </Button>
               </CardContent>
             </Card>
           </motion.div>
+        </TabsContent>
 
-          {/* System Info */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card className="bg-card border-border">
+        {/* System Tab */}
+        <TabsContent value="system" className="space-y-6">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <Card className="bg-card border-border starwars-border">
               <CardHeader>
-                <CardTitle className="text-primary flex items-center gap-2">
+                <CardTitle className="text-blue-400 flex items-center gap-2">
                   <Shield className="w-5 h-5" />
                   System-Informationen
                 </CardTitle>
@@ -535,22 +517,22 @@ export default function SettingsPage() {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Version</p>
-                    <p className="text-foreground font-mono">v2.0.0</p>
+                    <p className="text-sm text-gray-400">Version</p>
+                    <p className="text-blue-400 font-mono">v2.0.0-GALACTIC</p>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Letztes Update</p>
-                    <p className="text-foreground font-mono">{new Date().toLocaleDateString("de-DE")}</p>
+                    <p className="text-sm text-gray-400">Letztes Update</p>
+                    <p className="text-white font-mono">{new Date().toLocaleDateString("de-DE")}</p>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Benutzer-ID</p>
-                    <p className="text-foreground font-mono">#{user.id}</p>
+                    <p className="text-sm text-gray-400">Benutzer-ID</p>
+                    <p className="text-white font-mono">#{user.id}</p>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Status</p>
+                    <p className="text-sm text-gray-400">Status</p>
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                      <p className="text-primary font-medium">Online</p>
+                      <div className="traffic-light connected" />
+                      <p className="text-green-400 font-medium">Online</p>
                     </div>
                   </div>
                 </div>

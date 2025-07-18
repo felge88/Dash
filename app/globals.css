@@ -4,35 +4,34 @@
 
 @layer base {
   :root {
-    /* Space Theme Colors */
-    --background: 220 15% 8%; /* Deep space background */
-    --foreground: 220 20% 95%; /* Light text for contrast */
-    --card: 220 15% 12%; /* Darker panels */
-    --card-foreground: 220 20% 95%;
-    --popover: 220 15% 12%;
-    --popover-foreground: 220 20% 95%;
-    --primary: 200 90% 50%; /* Bright blue for primary actions (like a lightsaber) */
-    --primary-foreground: 220 15% 8%;
-    --secondary: 220 10% 20%; /* Muted secondary elements */
-    --secondary-foreground: 220 20% 95%;
-    --muted: 220 10% 20%;
-    --muted-foreground: 220 10% 60%;
-    --accent: 200 90% 50%; /* Same as primary for accent */
-    --accent-foreground: 220 15% 8%;
-    --destructive: 0 80% 50%; /* Red for danger (Sith Lord red) */
-    --destructive-foreground: 220 20% 95%;
-    --border: 220 10% 25%; /* Subtle borders */
-    --input: 220 10% 20%;
-    --ring: 200 90% 50%;
+    --background: 220 27% 8%;
+    --foreground: 210 40% 98%;
+    --card: 220 27% 12%;
+    --card-foreground: 210 40% 98%;
+    --popover: 220 27% 12%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 100% 56%;
+    --primary-foreground: 220 27% 8%;
+    --secondary: 220 27% 16%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 220 27% 16%;
+    --muted-foreground: 210 40% 65%;
+    --accent: 220 27% 20%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 220 27% 20%;
+    --input: 220 27% 20%;
+    --ring: 210 100% 56%;
     --radius: 0.5rem;
 
-    /* Module specific colors (Star Wars inspired) */
-    --module-instagram: 330 80% 60%; /* Vibrant Pink/Magenta */
-    --module-youtube: 270 80% 60%; /* Deep Purple */
-    --module-email: 40 90% 60%; /* Bright Orange */
-    --module-analytics: 120 70% 50%; /* Jedi Green */
-    --module-file: 200 70% 50%; /* Skywalker Blue */
-    --module-monitor: 60 90% 50%; /* Gold/Yellow */
+    /* Star Wars Colors */
+    --jedi-blue: 59 130% 246%;
+    --sith-red: 0 84% 60%;
+    --empire-gray: 220 9% 46%;
+    --rebel-orange: 25 95% 53%;
+    --space-purple: 263 70% 50%;
+    --hyperspace-cyan: 180 100% 70%;
   }
 }
 
@@ -42,29 +41,57 @@
   }
   body {
     @apply bg-background text-foreground font-mono;
-    /* Subtle starfield background */
-    background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+    background: radial-gradient(ellipse at top, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+      radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+      linear-gradient(180deg, #0f172a 0%, #020617 100%);
     min-height: 100vh;
-    overflow-x: hidden; /* Prevent horizontal scroll from animations */
+    position: relative;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.1), transparent),
+      radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.1), transparent),
+      radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.1), transparent),
+      radial-gradient(1px 1px at 130px 80px, rgba(255, 255, 255, 0.1), transparent),
+      radial-gradient(2px 2px at 160px 30px, rgba(255, 255, 255, 0.1), transparent);
+    background-repeat: repeat;
+    background-size: 200px 100px;
+    pointer-events: none;
+    z-index: -1;
   }
 }
 
 @layer components {
-  .star-glow {
-    box-shadow: 0 0 15px var(--primary), 0 0 30px var(--primary);
+  .starwars-glow {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
   }
 
-  .star-border {
-    border: 1px solid hsl(var(--primary) / 0.5);
+  .starwars-border {
+    border: 1px solid rgba(59, 130, 246, 0.5);
   }
 
-  .glitch-text {
+  .sith-glow {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+  }
+
+  .sith-border {
+    border: 1px solid rgba(239, 68, 68, 0.5);
+  }
+
+  .hologram-text {
     position: relative;
-    font-family: "Orbitron", sans-serif; /* A futuristic font */
+    color: #3b82f6;
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
   }
 
-  .glitch-text::before,
-  .glitch-text::after {
+  .hologram-text::before,
+  .hologram-text::after {
     content: attr(data-text);
     position: absolute;
     top: 0;
@@ -73,94 +100,75 @@
     height: 100%;
   }
 
-  .glitch-text::before {
-    animation: glitch-red 0.3s ease-in-out infinite alternate-reverse;
-    color: hsl(var(--destructive));
+  .hologram-text::before {
+    animation: hologram-flicker 0.15s ease-in-out infinite alternate;
+    color: rgba(59, 130, 246, 0.7);
     z-index: -1;
   }
 
-  .glitch-text::after {
-    animation: glitch-blue 0.3s ease-in-out infinite alternate-reverse;
-    color: hsl(var(--primary));
+  .hologram-text::after {
+    animation: hologram-flicker 0.15s ease-in-out infinite alternate-reverse;
+    color: rgba(139, 92, 246, 0.5);
     z-index: -2;
-  }
-
-  @keyframes glitch-red {
-    0% {
-      transform: translate(0);
-    }
-    20% {
-      transform: translate(-2px, 2px);
-    }
-    40% {
-      transform: translate(-2px, -2px);
-    }
-    60% {
-      transform: translate(2px, 2px);
-    }
-    80% {
-      transform: translate(2px, -2px);
-    }
-    100% {
-      transform: translate(0);
-    }
-  }
-
-  @keyframes glitch-blue {
-    0% {
-      transform: translate(0);
-    }
-    20% {
-      transform: translate(2px, -2px);
-    }
-    40% {
-      transform: translate(2px, 2px);
-    }
-    60% {
-      transform: translate(-2px, -2px);
-    }
-    80% {
-      transform: translate(-2px, 2px);
-    }
-    100% {
-      transform: translate(0);
-    }
   }
 
   .module-card {
     @apply bg-card border border-border rounded-lg p-6 transition-all duration-300;
-    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%);
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+    backdrop-filter: blur(10px);
   }
 
   .module-card:hover {
-    @apply star-glow transform scale-105;
-    animation: pulse-glow 1.5s infinite alternate;
-  }
-
-  @keyframes pulse-glow {
-    from {
-      box-shadow: 0 0 5px hsl(var(--primary) / 0.3), 0 0 10px hsl(var(--primary) / 0.2);
-    }
-    to {
-      box-shadow: 0 0 15px hsl(var(--primary) / 0.6), 0 0 30px hsl(var(--primary) / 0.4);
-    }
+    @apply starwars-glow transform scale-105;
+    animation: hologram-pulse 2s ease-in-out infinite;
   }
 
   .status-active {
-    @apply text-module-analytics; /* Jedi Green */
-    text-shadow: 0 0 10px hsl(var(--module-analytics) / 0.8);
+    @apply text-blue-400;
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
   }
 
   .status-inactive {
-    @apply text-muted-foreground;
+    @apply text-gray-500;
   }
 
   .status-error {
-    @apply text-destructive; /* Sith Red */
-    text-shadow: 0 0 10px hsl(var(--destructive) / 0.8);
+    @apply text-red-400;
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
   }
 
-  /* Responsive Layout für Sidebar */
+  .status-warning {
+    @apply text-yellow-400;
+    text-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
+  }
+
+  .traffic-light {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+    box-shadow: 0 0 8px currentColor;
+  }
+
+  .traffic-light.connected {
+    background-color: #10b981;
+    color: #10b981;
+    animation: pulse-green 2s ease-in-out infinite;
+  }
+
+  .traffic-light.disconnected {
+    background-color: #ef4444;
+    color: #ef4444;
+    animation: pulse-red 2s ease-in-out infinite;
+  }
+
+  .traffic-light.connecting {
+    background-color: #f59e0b;
+    color: #f59e0b;
+    animation: pulse-yellow 1s ease-in-out infinite;
+  }
+
   .dashboard-main {
     transition: margin-left 0.3s ease;
   }
@@ -172,6 +180,83 @@
   .sidebar-expanded + .dashboard-main {
     margin-left: 256px;
   }
+
+  .starwars-button {
+    background: linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #3b82f6;
+    transition: all 0.3s ease;
+  }
+
+  .starwars-button:hover {
+    background: linear-gradient(45deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+    border-color: rgba(59, 130, 246, 0.6);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+    transform: translateY(-2px);
+  }
+
+  .sith-button {
+    background: linear-gradient(45deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 127, 0.1));
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+  }
+
+  .sith-button:hover {
+    background: linear-gradient(45deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 127, 0.2));
+    border-color: rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+  }
+}
+
+@keyframes hologram-flicker {
+  0% {
+    opacity: 1;
+    transform: translateX(0px);
+  }
+  100% {
+    opacity: 0.8;
+    transform: translateX(1px);
+  }
+}
+
+@keyframes hologram-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes pulse-green {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes pulse-red {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes pulse-yellow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 .preloader {
@@ -180,7 +265,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: #000;
+  background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -194,20 +279,22 @@
 .spinner {
   width: 60px;
   height: 60px;
-  border: 3px solid rgba(hsl(var(--primary)) / 0.3);
-  border-top: 3px solid hsl(var(--primary));
+  border: 3px solid rgba(59, 130, 246, 0.3);
+  border-top: 3px solid #3b82f6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 20px;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
 }
 
 .loading-text {
-  color: hsl(var(--primary));
+  color: #3b82f6;
   font-size: 18px;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 2px;
   animation: pulse 1.5s ease-in-out infinite;
+  text-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
 }
 
 @keyframes spin {
@@ -216,17 +303,5 @@
   }
   100% {
     transform: rotate(360deg);
-  }
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 0.7;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0.7;
   }
 }
