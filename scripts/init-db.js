@@ -1,19 +1,21 @@
-const sqlite3 = require("sqlite3").verbose()
-const bcrypt = require("bcryptjs")
-const path = require("path")
-const fs = require("fs")
+const sqlite3 = require("sqlite3").verbose();
+const bcrypt = require("bcryptjs");
+const path = require("path");
+const fs = require("fs");
 
-// Ensure data directory exists
-const dataDir = path.join(__dirname, "..", "data")
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true })
+// Use root level database for production
+const dbPath = path.join(process.cwd(), "database.sqlite");
+
+// Create database directory if it doesn't exist
+const dbDir = path.dirname(dbPath);
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
 }
 
-const dbPath = path.join(dataDir, "database.sqlite")
-const db = new sqlite3.Database(dbPath)
+const db = new sqlite3.Database(dbPath);
 
 async function initDatabase() {
-  console.log("Initializing database...")
+  console.log("Initializing database...");
 
   // Create tables
   db.serialize(() => {
@@ -27,7 +29,7 @@ async function initDatabase() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         last_login DATETIME
       )
-    `)
+    `);
 
     // Modules table
     db.run(`
@@ -39,7 +41,7 @@ async function initDatabase() {
         is_active BOOLEAN DEFAULT FALSE,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
-    `)
+    `);
 
     // User modules permissions
     db.run(`
@@ -51,7 +53,7 @@ async function initDatabase() {
         FOREIGN KEY (module_id) REFERENCES modules (id),
         PRIMARY KEY (user_id, module_id)
       )
-    `)
+    `);
 
     // Module logs
     db.run(`
@@ -65,13 +67,13 @@ async function initDatabase() {
         FOREIGN KEY (module_id) REFERENCES modules (id),
         FOREIGN KEY (user_id) REFERENCES users (id)
       )
-    `)
+    `);
 
     // Insert default admin user
     bcrypt.hash("admin123", 10, (err, hash) => {
       if (err) {
-        console.error("Error hashing password:", err)
-        return
+        console.error("Error hashing password:", err);
+        return;
       }
 
       db.run(
@@ -79,19 +81,20 @@ async function initDatabase() {
         ["admin", hash, true],
         (err) => {
           if (err) {
-            console.error("Error creating admin user:", err)
+            console.error("Error creating admin user:", err);
           } else {
-            console.log("Admin user created/verified")
+            console.log("Admin user created/verified");
           }
-        },
-      )
-    })
+        }
+      );
+    });
 
     // Insert default modules
     const defaultModules = [
       {
         name: "Instagram Automation",
-        description: "Automatisierte Instagram-Aktionen wie Follow, Like und Comment",
+        description:
+          "Automatisierte Instagram-Aktionen wie Follow, Like und Comment",
         script_path: "instagram-bot.py",
       },
       {
@@ -119,7 +122,7 @@ async function initDatabase() {
         description: "Automatische Generierung von Social Media Content",
         script_path: "content-generator.py",
       },
-    ]
+    ];
 
     defaultModules.forEach((module) => {
       db.run(
@@ -127,20 +130,20 @@ async function initDatabase() {
         [module.name, module.description, module.script_path],
         (err) => {
           if (err) {
-            console.error(`Error creating module ${module.name}:`, err)
+            console.error(`Error creating module ${module.name}:`, err);
           }
-        },
-      )
-    })
-  })
+        }
+      );
+    });
+  });
 
   db.close((err) => {
     if (err) {
-      console.error("Error closing database:", err)
+      console.error("Error closing database:", err);
     } else {
-      console.log("Database initialized successfully!")
+      console.log("Database initialized successfully!");
     }
-  })
+  });
 }
 
-initDatabase()
+initDatabase();

@@ -3,17 +3,18 @@ import { promisify } from "util";
 import path from "path";
 import fs from "fs";
 
-const dataDir = path.join(process.cwd(), "data");
-const dbPath = path.join(dataDir, "database.sqlite");
+// Use root level database for production
+const dbPath = path.join(process.cwd(), "database.sqlite");
 
 class Database {
   private db: sqlite3.Database;
   private initialized = false;
 
   constructor() {
-    // Ensure data directory exists
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir, { recursive: true });
+    // Ensure database directory exists
+    const dbDir = path.dirname(dbPath);
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
     }
 
     this.db = new sqlite3.Database(dbPath);
@@ -311,12 +312,15 @@ class Database {
         `UPDATE users SET ${fields.join(", ")} WHERE id = ?`,
         values
       );
-      
+
       if (result.changes === 0) {
         throw new Error("User not found or no changes made");
       }
-      
-      console.log(`Updated user ${userId} profile:`, { fields, changes: result.changes });
+
+      console.log(`Updated user ${userId} profile:`, {
+        fields,
+        changes: result.changes,
+      });
     }
   }
 

@@ -110,6 +110,12 @@ log "📁 Creating project directory..."
 mkdir -p $PROJECT_DIR
 chown -R $DEPLOY_USER:$DEPLOY_USER $PROJECT_DIR
 
+# Create PM2 log directory
+log "📁 Creating PM2 log directory..."
+mkdir -p /var/log/pm2
+chown -R $DEPLOY_USER:$DEPLOY_USER /var/log/pm2
+chmod 755 /var/log/pm2
+
 # Switch to deploy user for application installation
 log "🔄 Switching to deploy user for application setup..."
 sudo -u $DEPLOY_USER bash << 'EOF'
@@ -201,37 +207,13 @@ else
     sed -i 's/"start": "next start"/"start": "next dev"/g' package.json
 fi
 
-# Configure PM2
-log "⚙️ Configuring PM2..."
-cat > ecosystem.config.js << 'ECOEOF'
-module.exports = {
-  apps: [{
-    name: 'dash-automation',
-    script: './node_modules/.bin/next',
-    args: 'start',
-    cwd: '/var/www/dash-automation',
-    instances: 1,
-    exec_mode: 'fork',
-    env: {
-      NODE_ENV: 'production',
-      PORT: 3000
-    },
-    env_production: {
-      NODE_ENV: 'production',
-      PORT: 3000
-    },
-    log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-    error_file: '/var/log/pm2/dash-automation-error.log',
-    out_file: '/var/log/pm2/dash-automation-out.log',
-    log_file: '/var/log/pm2/dash-automation.log',
-    time: true,
-    autorestart: true,
-    watch: false,
-    max_memory_restart: '1G',
-    node_args: '--max-old-space-size=1024'
-  }]
-};
-ECOEOF
+# Configure PM2 - Use existing ecosystem.config.js
+log "⚙️ Using existing PM2 configuration..."
+# The ecosystem.config.js already exists in the repository
+
+# Create PM2 log directory
+mkdir -p /var/log/pm2
+chown -R $USER:$USER /var/log/pm2
 
 log "✅ Application setup completed as deploy user"
 EOF

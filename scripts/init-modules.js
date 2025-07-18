@@ -1,4 +1,4 @@
-const database = require("./lib/database.ts").default;
+const database = require("../lib/database.ts").default;
 
 async function initializeDatabase() {
   console.log("Initializing database with sample modules...");

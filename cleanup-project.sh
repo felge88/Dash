@@ -18,10 +18,10 @@ find . -name "node_modules" -prune -o -name "*.ts" -exec grep -l "auth-new\|data
 # 1. REMOVE DUPLICATE/OUTDATED FILES
 echo "🗑️ STEP 1: Removing duplicate and outdated files..."
 
-# Remove -new variants
+# Remove -new variants (but keep init-db.js!)
 rm -f lib/auth-new.ts
 rm -f lib/database-new.ts
-rm -f scripts/init-db-new.js
+# rm -f scripts/init-db-new.js  # Already removed - keep init-db.js
 
 # Remove backup/temp files
 find . -name "*.bak" -delete 2>/dev/null || true
@@ -281,6 +281,9 @@ else
     echo '{"buildMode": "development"}' > .next/build-info.json
     sed -i 's/"start": "next start"/"start": "next dev"/g' package.json
 fi
+
+# NOTE: Dependencies will be installed by deployment script
+# No need for double npm install in production deployment
 
 # 10. FINAL PROJECT STATUS
 echo "📊 PROJECT STATUS AFTER CLEANUP:"
