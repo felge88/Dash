@@ -6,6 +6,7 @@
     "build": "npm ci && next build",
     "db:init": "node scripts/init-db.js",
     "db:reset": "rm -f database.sqlite && npm run db:init",
+    "db:backup": "bash scripts/backup.sh",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
@@ -13,7 +14,12 @@
     "type-check": "tsc --noEmit",
     "pm2:start": "pm2 start ecosystem.config.js --env production",
     "pm2:logs": "pm2 logs",
-    "pm2:status": "pm2 status"
+    "pm2:status": "pm2 status",
+    "pm2:restart": "pm2 restart ecosystem.config.js",
+    "pm2:stop": "pm2 stop ecosystem.config.js",
+    "health": "curl -s http://localhost:3000/api/health | jq",
+    "audit:security": "npm audit --production",
+    "audit:fix": "npm audit fix --force"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",

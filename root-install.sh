@@ -110,13 +110,26 @@ log "📁 Creating project directory..."
 mkdir -p $PROJECT_DIR
 chown -R $DEPLOY_USER:$DEPLOY_USER $PROJECT_DIR
 
-# Create PM2 log directory
-log "📁 Creating PM2 log directory..."
-mkdir -p /var/log/pm2
-chown -R $DEPLOY_USER:$DEPLOY_USER /var/log/pm2
-chmod 755 /var/log/pm2
+    # Create PM2 log directory
+    log "📁 Creating PM2 log directory..."
+    mkdir -p /var/log/pm2
+    chown -R $DEPLOY_USER:$DEPLOY_USER /var/log/pm2
+    chmod 755 /var/log/pm2
 
-# Switch to deploy user for application installation
+    # Create backup directory
+    log "📁 Creating backup directory..."
+    mkdir -p $PROJECT_DIR/backups
+    chown -R $DEPLOY_USER:$DEPLOY_USER $PROJECT_DIR/backups
+    chmod 755 $PROJECT_DIR/backups
+
+    # Setup daily backup cron job
+    log "⏰ Setting up daily backup cron job..."
+    cat > /etc/cron.d/blaster-backup << 'CRON_EOF'
+# Daily SQLite backup at 2 AM
+0 2 * * * deploy /home/deploy/blaster/scripts/backup.sh >> /var/log/blaster-backup.log 2>&1
+CRON_EOF
+    chmod 644 /etc/cron.d/blaster-backup
+    service cron restart# Switch to deploy user for application installation
 log "🔄 Switching to deploy user for application setup..."
 sudo -u $DEPLOY_USER bash << 'EOF'
 set -e
@@ -302,7 +315,19 @@ fi
 # Start PM2 as deploy user
 log "🚀 Starting application with PM2..."
 sudo -u $DEPLOY_USER bash << 'EOF'
-cd /var/www/dash-automation
+cd /home/deploy/blaster
+
+# Install PM2 log rotation
+pm2 install pm2-logrotate
+pm2 set pm2-logrotate:max_size 10M
+pm2 set pm2-logrotate:retain 30
+pm2 set pm2-logrotate:compress true
+pm2 set pm2-logrotate:rotateInterval '0 0 * * *'
+
+# Make backup script executable
+chmod +x scripts/backup.sh
+
+# Start application
 pm2 start ecosystem.config.js --env production
 pm2 save
 pm2 startup | grep -E "^sudo" | bash || true
