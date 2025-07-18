@@ -13,7 +13,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 DEPLOY_USER="deploy"
-PROJECT_DIR="/var/www/dash-automation"
+PROJECT_DIR="/home/deploy/blaster"
 LOG_FILE="/var/log/dash-installation.log"
 
 # Logging function

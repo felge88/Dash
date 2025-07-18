@@ -16,7 +16,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 DOMAIN=${1:-""}
-PROJECT_DIR="/var/www/dash-automation"
+PROJECT_DIR="/home/deploy/blaster"
 LOG_FILE="/var/log/dash-installation.log"
 
 # Logging function
