@@ -3,14 +3,17 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "next build",
+    "build": "npm ci && next build",
     "db:init": "node scripts/init-db.js",
     "db:reset": "rm -f database.sqlite && npm run db:init",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
     "clean": "rm -rf .next && rm -rf node_modules/.cache",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "pm2:start": "pm2 start ecosystem.config.js --env production",
+    "pm2:logs": "pm2 logs",
+    "pm2:status": "pm2 status"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",

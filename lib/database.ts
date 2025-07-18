@@ -27,6 +27,13 @@ class Database {
     const run = promisify(this.db.run.bind(this.db));
 
     try {
+      // Enable WAL mode for better performance
+      await run("PRAGMA journal_mode=WAL;");
+      await run("PRAGMA synchronous=NORMAL;");
+      await run("PRAGMA cache_size=10000;");
+      await run("PRAGMA temp_store=MEMORY;");
+      console.log("✅ SQLite performance optimizations enabled");
+
       // Load and execute schema
       const schemaPath = path.join(process.cwd(), "lib", "db-schema.sql");
 

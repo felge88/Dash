@@ -50,10 +50,41 @@ cd /home/deploy/blaster
 ### 5. **Anwendung starten**
 
 ```bash
-pm2 start ecosystem.config.js
+# PM2 aus dem Projektordner starten
+cd /home/deploy/blaster
+pm2 start ecosystem.config.js --env production
 pm2 save
 pm2 startup
+
+# Status prüfen
+pm2 status
+pm2 logs
 ```
+
+## 🔧 **Produktionsoptimierungen**
+
+### **Log-Rotation einrichten:**
+
+```bash
+# PM2 Log-Rotation installieren
+pm2 install pm2-logrotate
+pm2 set pm2-logrotate:max_size 10M
+pm2 set pm2-logrotate:retain 30
+pm2 set pm2-logrotate:compress true
+```
+
+### **SQLite Performance:**
+
+- ✅ WAL-Modus automatisch aktiviert
+- ✅ Cache-Optimierungen konfiguriert
+- ✅ Synchronous=NORMAL für bessere Performance
+
+### **CI/CD Pipeline:**
+
+- ✅ GitHub Actions Workflow eingerichtet
+- ✅ Automatische Tests und Builds
+- ✅ Snyk Security-Scanning
+- ✅ npm ci für deterministische Builds
 
 ## 📋 Projekt-Struktur:
 
